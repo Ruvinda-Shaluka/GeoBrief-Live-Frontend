@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brandPrimary: #a855f7;
+  --color-darkBg: #0f172a;
+  --color-darkCard: #1e293b;
+  --color-darkBorder: #334155;
+}
+
+body {
+  background-color: var(--color-darkBg);
+  color: #e2e8f0; /* text-slate-200 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

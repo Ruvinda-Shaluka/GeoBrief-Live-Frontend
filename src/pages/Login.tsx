@@ -82,9 +82,9 @@ const Login = () => {
         </form>
 
         <div className="mt-6 flex items-center">
-          <div className="flex-grow border-t border-darkBorder"></div>
+          <div className="grow border-t border-darkBorder"></div>
           <span className="mx-4 text-sm text-slate-500">OR</span>
-          <div className="flex-grow border-t border-darkBorder"></div>
+          <div className="grow border-t border-darkBorder"></div>
         </div>
 
         <div className="mt-6 flex justify-center">

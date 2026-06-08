@@ -8,8 +8,8 @@ const login = async (userData: any) => {
   return response.data;
 };
 
-// Register user (Local)
-const register = async (userData: any) => {
+
+const register = async (userData: { name: string; email: string; password: string }) => {
   const response = await axios.post(API_URL + 'register', userData);
   return response.data;
 };

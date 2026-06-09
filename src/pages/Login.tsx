@@ -6,7 +6,6 @@ import { setCredentials } from '../store/slices/authSlice';
 import authService from '../services/authService';
 
 const Login = () => {
-  // Add toggle state
   const [isLogin, setIsLogin] = useState(true);
   
   const [name, setName] = useState('');
@@ -14,10 +13,12 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   
+  // New state to track if the user is holding down the password peek button
+  const [showPassword, setShowPassword] = useState(false);
+  
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // Unified submit handler for both Login and Register
   const handleLocalAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
@@ -31,7 +32,7 @@ const Login = () => {
       }
       
       dispatch(setCredentials({ user: data, token: data.token }));
-      navigate('/dashboard'); // or navigate('/') depending on your routing setup
+      navigate('/dashboard'); 
     } catch (err: any) {
       setError(err.response?.data?.message || `Failed to ${isLogin ? 'login' : 'register'}`);
     }
@@ -66,7 +67,6 @@ const Login = () => {
         )}
 
         <form onSubmit={handleLocalAuth} className="space-y-4">
-          {/* Conditionally render the Name field ONLY when registering */}
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
@@ -93,14 +93,32 @@ const Login = () => {
           
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
-            <input 
-              type="password" 
-              required
-              minLength={6} // Enforce the backend's 6-character limit on the frontend
-              className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                required
+                minLength={6} 
+                className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-white focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {/* Hold-to-view Eye Button */}
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none transition-colors cursor-pointer"
+                onMouseDown={() => setShowPassword(true)}
+                onMouseUp={() => setShowPassword(false)}
+                onMouseLeave={() => setShowPassword(false)} // Hides it if they drag mouse away before letting go
+                onTouchStart={() => setShowPassword(true)}  // For mobile devices
+                onTouchEnd={() => setShowPassword(false)}   // For mobile devices
+                title="Hold to show password"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           <button 
@@ -111,12 +129,11 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Toggle between Login and Register */}
         <div className="mt-4 text-center">
           <button 
             onClick={() => {
               setIsLogin(!isLogin);
-              setError(''); // Clear errors when switching modes
+              setError(''); 
             }}
             className="text-sm text-slate-400 hover:text-white transition-colors focus:outline-none"
           >

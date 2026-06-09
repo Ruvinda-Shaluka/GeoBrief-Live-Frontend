@@ -2,8 +2,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL + '/users/profile';
 
-// Update user profile
-const updateProfile = async (userData: { name?: string; password?: string }, token: string) => {
+const updateProfile = async (userData: { name?: string; currentPassword?: string; newPassword?: string }, token: string) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,

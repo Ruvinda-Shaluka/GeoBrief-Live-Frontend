@@ -27,10 +27,17 @@ const addMemberToGroup = async (groupId: string, email: string, token: string) =
   return response.data;
 };
 
+// Transfer admin privilege/ownership to another member
+const transferGroupAdmin = async (groupId: string, newAdminId: string, token: string) => {
+  const response = await axios.put(API_URL + `${groupId}/admin`, { newAdminId }, getAuthHeaders(token));
+  return response.data;
+};
+
 const groupService = {
   createGroup,
   getUserGroups,
   addMemberToGroup,
+  transferGroupAdmin,
 };
 
 export default groupService;

@@ -119,6 +119,33 @@ const GroupManager = () => {
     }
   };
 
+  const handleMakeAdmin = async (memberId: string) => {
+    if (!token || !selectedGroup) return;
+
+    if (!window.confirm("Are you sure you want to transfer group admin privileges to this member? You will lose admin status for this group.")) {
+      return;
+    }
+
+    try {
+      setActionError(null);
+      setActionSuccess(null);
+      const updatedGroup = await groupService.transferGroupAdmin(
+        selectedGroup._id,
+        memberId,
+        token
+      );
+
+      // Update groups list
+      setGroups((prev) =>
+        prev.map((g) => (g._id === selectedGroup._id ? updatedGroup : g))
+      );
+      setSelectedGroup(updatedGroup);
+      setActionSuccess("Transferred admin privilege successfully!");
+    } catch (err: any) {
+      setActionError(err.response?.data?.message || "Failed to transfer admin privileges.");
+    }
+  };
+
   // Upvote helper for group page
   const handleUpvote = async (incidentId: string) => {
     if (!token) return;
@@ -366,6 +393,16 @@ const GroupManager = () => {
                               </span>
                               <span className="text-[10px] text-darkTextSecondary">{member.email}</span>
                             </div>
+                            {isAdminOfSelectedGroup() && member._id !== user?._id && (
+                              <button
+                                type="button"
+                                onClick={() => handleMakeAdmin(member._id)}
+                                className="ml-auto px-2 py-1 bg-brandPrimary/10 border border-brandPrimary/35 hover:bg-brandPrimary hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer select-none"
+                                title="Transfer admin privileges to this member"
+                              >
+                                Make Admin
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
 
 export interface Incident {
@@ -71,7 +72,19 @@ const getCategoryLabel = (type: string) => {
 };
 
 const IncidentCard = ({ incident, onUpvote }: IncidentCardProps) => {
+  const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
+
+  const handleViewOnMap = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!incident.location || !incident.location.coordinates) return;
+    navigate("/dashboard", {
+      state: {
+        centerCoordinates: incident.location.coordinates,
+        selectedIncidentId: incident._id
+      }
+    });
+  };
   const currentUserId = user?._id;
   const isUpvoted = currentUserId && incident.upvotes?.includes(currentUserId);
   const upvoteCount = incident.upvotes?.length || 0;
@@ -136,38 +149,54 @@ const IncidentCard = ({ incident, onUpvote }: IncidentCardProps) => {
           </span>
         </div>
 
-        {onUpvote ? (
-          <button
-            onClick={() => onUpvote(incident._id)}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all duration-200 cursor-pointer ${
-              isUpvoted
-                ? "bg-brandPrimary/20 text-brandPrimary border-brandPrimary/50 shadow-md shadow-brandPrimary/10"
-                : "bg-transparent text-slate-400 border-darkBorder/40 hover:bg-slate-800/40 hover:text-white hover:border-slate-500"
-            }`}
-          >
-            <svg
-              className={`h-4 w-4 transition-transform duration-200 ${isUpvoted ? "scale-110 fill-brandPrimary text-brandPrimary" : ""}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+        <div className="flex items-center space-x-2">
+          {incident.location && incident.location.coordinates && (
+            <button
+              onClick={handleViewOnMap}
+              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border border-darkBorder/40 text-[11px] font-semibold text-slate-300 hover:bg-slate-800/40 hover:text-brandPrimary hover:border-brandPrimary/40 transition-all cursor-pointer"
+              title="View on Interactive Map"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-              />
-            </svg>
-            <span>{upvoteCount}</span>
-          </button>
-        ) : (
-          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-darkBorder/20 text-xs font-semibold text-slate-500 bg-darkCard/10 select-none">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-            </svg>
-            <span>{upvoteCount}</span>
-          </div>
-        )}
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>View Map</span>
+            </button>
+          )}
+
+          {onUpvote ? (
+            <button
+              onClick={() => onUpvote(incident._id)}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                isUpvoted
+                  ? "bg-brandPrimary/20 text-brandPrimary border-brandPrimary/50 shadow-md shadow-brandPrimary/10"
+                  : "bg-transparent text-slate-400 border-darkBorder/40 hover:bg-slate-800/40 hover:text-white hover:border-slate-500"
+              }`}
+            >
+              <svg
+                className={`h-4 w-4 transition-transform duration-200 ${isUpvoted ? "scale-110 fill-brandPrimary text-brandPrimary" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                />
+              </svg>
+              <span>{upvoteCount}</span>
+            </button>
+          ) : (
+            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-darkBorder/20 text-xs font-semibold text-slate-500 bg-darkCard/10 select-none">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+              </svg>
+              <span>{upvoteCount}</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

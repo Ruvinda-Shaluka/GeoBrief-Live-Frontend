@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useAppSelector } from "../store/store";
 import incidentService from "../services/incidentService";
 import groupService from "../services/groupService";
@@ -13,15 +14,42 @@ interface Group {
 }
 
 const Dashboard = () => {
+  const location = useLocation();
   const { token, user } = useAppSelector((state) => state.auth);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Mobile/Tablet responsive tabs
+  const [activeTab, setActiveTab] = useState<"map" | "panel">("map");
+
   // Map state
   const [selectedCoordinates, setSelectedCoordinates] = useState<[number, number] | null>(null);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+
+  // Listen to redirect state from View on Map actions
+  useEffect(() => {
+    if (location.state && (location.state as any).centerCoordinates) {
+      const stateData = location.state as any;
+      const coords = stateData.centerCoordinates as [number, number];
+      const incidentId = stateData.selectedIncidentId as string;
+
+      // Set map focus coords
+      setSelectedCoordinates(coords);
+      setActiveTab("map"); // Show the map view on mobile first to see the location
+      
+      // If incident ID is provided, try to find and select it
+      if (incidentId && incidents.length > 0) {
+        const found = incidents.find(i => i._id === incidentId);
+        if (found) {
+          setSelectedIncident(found);
+          setSelectedCoordinates(null); // Clear manual pin to focus on actual incident marker
+          setActiveTab("panel"); // Open details panel
+        }
+      }
+    }
+  }, [location.state, incidents]);
 
   const fetchData = async () => {
     if (!token) return;
@@ -48,11 +76,13 @@ const Dashboard = () => {
   const handleMapClick = (lng: number, lat: number) => {
     setSelectedIncident(null);
     setSelectedCoordinates([lng, lat]);
+    setActiveTab("panel"); // Auto-focus panel on mobile/tablet to let user fill report
   };
 
   const handleMarkerClick = (incident: Incident) => {
     setSelectedCoordinates(null);
     setSelectedIncident(incident);
+    setActiveTab("panel"); // Auto-focus panel on mobile/tablet to view details
   };
 
   const handleCreateIncidentSubmit = async (formData: {
@@ -61,20 +91,15 @@ const Dashboard = () => {
     type: string;
     visibility: "public" | "private" | "group";
     sharedWithGroups?: string[];
+    coordinates: [number, number];
   }) => {
-    if (!token || !selectedCoordinates) return;
+    if (!token) return;
     try {
-      const newIncident = await incidentService.createIncident(
-        {
-          ...formData,
-          coordinates: selectedCoordinates,
-        },
-        token
-      );
+      const newIncident = await incidentService.createIncident(formData, token);
       setIncidents((prev) => [newIncident, ...prev]);
       setSelectedCoordinates(null);
-      // Optional: Refetch data to ensure populated values are correct
       fetchData();
+      setActiveTab("map"); // Switch back to map to see new marker
     } catch (err: any) {
       alert(err.response?.data?.message || "Error creating incident report.");
     }
@@ -152,10 +177,37 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Mobile Tab Toggles (Visible only on < lg screens) */}
+      <div className="flex lg:hidden mb-4 border border-darkBorder/40 p-1 rounded-xl bg-darkCard/20">
+        <button
+          onClick={() => setActiveTab("map")}
+          className={`flex-1 py-2 text-center text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            activeTab === "map"
+              ? "bg-brandPrimary text-white shadow-md"
+              : "text-slate-400 hover:text-white"
+          }`}
+        >
+          Map View
+        </button>
+        <button
+          onClick={() => setActiveTab("panel")}
+          className={`flex-1 py-2 text-center text-xs font-semibold rounded-lg transition-all cursor-pointer relative ${
+            activeTab === "panel"
+              ? "bg-brandPrimary text-white shadow-md"
+              : "text-slate-400 hover:text-white"
+          }`}
+        >
+          Details / Report
+          {(selectedCoordinates || selectedIncident) && (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+          )}
+        </button>
+      </div>
+
       {/* Main workspace layout */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
         {/* Left Side: MapContainer */}
-        <div className="lg:col-span-2 h-full min-h-[500px]">
+        <div className={`lg:col-span-2 h-full min-h-[500px] ${activeTab === "map" ? "block" : "hidden lg:block"}`}>
           <MapContainer
             incidents={incidents}
             onMapClick={handleMapClick}
@@ -165,7 +217,7 @@ const Dashboard = () => {
         </div>
 
         {/* Right Side: Floating controls panel */}
-        <div className="h-full overflow-y-auto pr-1">
+        <div className={`h-full overflow-y-auto pr-1 ${activeTab === "panel" ? "block" : "hidden lg:block"}`}>
           {selectedCoordinates ? (
             <IncidentForm
               coordinates={selectedCoordinates}
@@ -204,10 +256,20 @@ const Dashboard = () => {
                   Click on an existing map marker to view detailed descriptions, status updates, and upvote reports.
                 </p>
               </div>
-              <div className="border-t border-darkBorder/20 pt-6">
+              <div className="border-t border-darkBorder/20 pt-6 space-y-4">
                 <p className="text-xs text-slate-400">
                   Total Active Incidents: <span className="font-bold text-white">{incidents.length}</span>
                 </p>
+                <button
+                  onClick={() => {
+                    setSelectedIncident(null);
+                    setSelectedCoordinates([79.8612, 6.9271]); // Default Colombo coordinates
+                    setActiveTab("panel");
+                  }}
+                  className="w-full py-2.5 rounded-xl text-xs font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-all shadow-lg cursor-pointer"
+                >
+                  Report by entering Coordinates
+                </button>
               </div>
             </div>
           )}

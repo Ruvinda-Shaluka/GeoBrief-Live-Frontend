@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import Navbar from './Navbar';
+import BottomNav from './BottomNav';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -7,16 +8,17 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <div className="flex flex-col min-h-screen bg-darkBg text-slate-200">
-      {/* Navbar Placeholder (We will build the real one next) */}
+    <div className="flex flex-col min-h-screen bg-darkBg text-slate-800 dark:text-slate-200">
       <Navbar />
-      <main className="grow pt-24">
+      <main className="grow pt-24 pb-20 md:pb-6">
         {children}
       </main>
       
-      {/* Footer Placeholder */}
-      <footer className="p-4 border-t border-darkBorder bg-darkCard text-center text-slate-500 text-sm">
-        Footer Placeholder
+      {/* Bottom mobile navigation */}
+      <BottomNav />
+      
+      <footer className="hidden md:block p-6 border-t border-darkBorder/30 bg-darkCard/30 text-center text-slate-500 text-xs">
+        GeoBrief-Live Civic Spatial Dashboard &copy; {new Date().getFullYear()}
       </footer>
     </div>
   );

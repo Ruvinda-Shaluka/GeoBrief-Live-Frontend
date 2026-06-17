@@ -1,15 +1,45 @@
 @import "tailwindcss";
 
+:root {
+  --brandPrimary: #1f7a8c;
+  --bg: #e1e5f2;
+  --card: #ffffff;
+  --border: #bfdbf7;
+  --text: #022b3a;
+  --text-secondary: #1f7a8c;
+}
+
+/* Dark theme class */
+.dark {
+  --brandPrimary: #1f7a8c;
+  --bg: #022b3a;
+  --card: #051a24;
+  --border: #133948;
+  --text: #ffffff;
+  --text-secondary: #bfdbf7;
+}
+
 @theme {
-  --color-brandPrimary: #a855f7;
-  --color-darkBg: #0f172a;
-  --color-darkCard: #1e293b;
-  --color-darkBorder: #334155;
+  --color-brandPrimary: var(--brandPrimary);
+  --color-darkBg: var(--bg);
+  --color-darkCard: var(--card);
+  --color-darkBorder: var(--border);
 }
 
 body {
   background-color: var(--color-darkBg);
-  color: #e2e8f0; /* text-slate-200 */
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Utility animations or fixes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
 }

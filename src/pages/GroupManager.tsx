@@ -38,6 +38,10 @@ const GroupManager = () => {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
+  // Search filter states
+  const [groupSearchTerm, setGroupSearchTerm] = useState("");
+  const [incidentSearchTerm, setIncidentSearchTerm] = useState("");
+
   const fetchData = async () => {
     if (!token) return;
     try {
@@ -135,6 +139,19 @@ const GroupManager = () => {
     );
   });
 
+  // Filter group incidents by search query
+  const filteredGroupIncidents = groupIncidents.filter((incident) =>
+    incident.title.toLowerCase().includes(incidentSearchTerm.toLowerCase()) ||
+    incident.description.toLowerCase().includes(incidentSearchTerm.toLowerCase()) ||
+    incident.type.toLowerCase().includes(incidentSearchTerm.toLowerCase())
+  );
+
+  // Filter groups list by search query
+  const filteredGroups = groups.filter((group) =>
+    group.name.toLowerCase().includes(groupSearchTerm.toLowerCase()) ||
+    group.description?.toLowerCase().includes(groupSearchTerm.toLowerCase())
+  );
+
   const isAdminOfSelectedGroup = () => {
     if (!selectedGroup || !user) return false;
     const adminId = typeof selectedGroup.admin === "object" ? selectedGroup.admin._id : selectedGroup.admin;
@@ -200,15 +217,33 @@ const GroupManager = () => {
             </div>
 
             {/* Groups List Selection */}
-            <div className="bg-darkCard/40 border border-darkBorder/40 rounded-2xl p-6 shadow-xl">
-              <h3 className="text-lg font-bold text-white mb-4">Your Groups</h3>
-              {groups.length === 0 ? (
+            <div className="bg-darkCard/40 border border-darkBorder/40 rounded-2xl p-6 shadow-xl space-y-4">
+              <h3 className="text-lg font-bold text-white mb-2">Your Groups</h3>
+              
+              {groups.length > 0 && (
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    value={groupSearchTerm}
+                    onChange={(e) => setGroupSearchTerm(e.target.value)}
+                    placeholder="Search groups..."
+                    className="w-full bg-slate-900/40 border border-darkBorder/40 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors"
+                  />
+                </div>
+              )}
+
+              {filteredGroups.length === 0 ? (
                 <p className="text-xs text-slate-400 py-4 text-center">
-                  You are not in any groups yet.
+                  {groups.length === 0 ? "You are not in any groups yet." : "No matching groups found."}
                 </p>
               ) : (
-                <div className="space-y-2">
-                  {groups.map((group) => {
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {filteredGroups.map((group) => {
                     const isSelected = selectedGroup?._id === group._id;
                     return (
                       <button
@@ -320,18 +355,42 @@ const GroupManager = () => {
 
                   {/* Incidents Shared */}
                   <div className="md:col-span-2 space-y-3 text-left">
-                    <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                      Shared Group Incidents ({groupIncidents.length})
-                    </h3>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                      <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                        Shared Group Incidents ({filteredGroupIncidents.length})
+                      </h3>
+                      {groupIncidents.length > 0 && (
+                        <div className="relative w-full sm:w-48">
+                          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                          </span>
+                          <input
+                            type="text"
+                            value={incidentSearchTerm}
+                            onChange={(e) => setIncidentSearchTerm(e.target.value)}
+                            placeholder="Search group incidents..."
+                            className="w-full bg-slate-950/40 border border-darkBorder/40 rounded-xl pl-8 pr-3 py-1.5 text-[10px] text-white focus:outline-none focus:border-brandPrimary transition-colors"
+                          />
+                        </div>
+                      )}
+                    </div>
                     {groupIncidents.length === 0 ? (
                       <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-darkBorder/20 px-4">
                         <p className="text-xs text-slate-400">
                           No group incidents have been reported. Set visibility to "group" when submitting an incident from the Map Dashboard.
                         </p>
                       </div>
+                    ) : filteredGroupIncidents.length === 0 ? (
+                      <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-darkBorder/20 px-4">
+                        <p className="text-xs text-slate-400">
+                          No group incidents match your search query.
+                        </p>
+                      </div>
                     ) : (
                       <div className="grid grid-cols-1 gap-4 max-h-[350px] overflow-y-auto pr-1">
-                        {groupIncidents.map((incident) => (
+                        {filteredGroupIncidents.map((incident) => (
                           <IncidentCard
                             key={incident._id}
                             incident={incident}

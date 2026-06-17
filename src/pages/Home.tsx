@@ -15,6 +15,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchPublicIncidents = async () => {
     try {
@@ -71,10 +72,12 @@ const Home = () => {
     }
   };
 
-  // Filter incidents locally by type
+  // Filter incidents locally by type and search query
   const filteredIncidents = incidents.filter((incident) => {
-    if (selectedCategory === "all") return true;
-    return incident.type.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesCategory = selectedCategory === "all" || incident.type.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          incident.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
   return (
@@ -82,11 +85,29 @@ const Home = () => {
       {/* Hero Section Banner */}
       <HeroSection />
 
-      {/* Category Filter Pills */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <h2 className="text-2xl font-bold text-white tracking-tight">
-          Recent Incidents
-        </h2>
+      {/* Search Bar & Category Filter */}
+      <div className="space-y-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight text-left">
+            Recent Incidents
+          </h2>
+          
+          <div className="relative w-full md:w-80">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search incidents..."
+              className="w-full bg-darkCard/50 border border-darkBorder/40 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-brandPrimary transition-colors"
+            />
+          </div>
+        </div>
+        
         <CategoryFilter
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}

@@ -4,6 +4,7 @@ import groupService from "../services/groupService";
 import incidentService from "../services/incidentService";
 import IncidentCard from "../components/incidents/IncidentCard";
 import type { Incident } from "../components/incidents/IncidentCard";
+import ConfirmModal from "../components/layout/ConfirmModal";
 
 interface UserInfo {
   _id: string;
@@ -43,6 +44,10 @@ const GroupManager = () => {
   const [incidentSearchTerm, setIncidentSearchTerm] = useState("");
 
   const [isMembersExpanded, setIsMembersExpanded] = useState(true);
+
+  // Custom confirmation dialog states
+  const [isTransferConfirmOpen, setIsTransferConfirmOpen] = useState(false);
+  const [pendingAdminId, setPendingAdminId] = useState<string | null>(null);
 
   const fetchData = async () => {
     if (!token) return;
@@ -119,12 +124,13 @@ const GroupManager = () => {
     }
   };
 
-  const handleMakeAdmin = async (memberId: string) => {
-    if (!token || !selectedGroup) return;
+  const handleMakeAdmin = (memberId: string) => {
+    setPendingAdminId(memberId);
+    setIsTransferConfirmOpen(true);
+  };
 
-    if (!window.confirm("Are you sure you want to transfer group admin privileges to this member? You will lose admin status for this group.")) {
-      return;
-    }
+  const executeTransferAdmin = async (memberId: string) => {
+    if (!token || !selectedGroup) return;
 
     try {
       setActionError(null);
@@ -472,6 +478,23 @@ const GroupManager = () => {
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={isTransferConfirmOpen}
+        title="Transfer Admin Privileges"
+        message="Are you sure you want to transfer group admin privileges to this member? You will lose admin status for this group."
+        confirmText="Transfer"
+        cancelText="Cancel"
+        onConfirm={async () => {
+          if (pendingAdminId) {
+            setIsTransferConfirmOpen(false);
+            await executeTransferAdmin(pendingAdminId);
+          }
+        }}
+        onCancel={() => {
+          setIsTransferConfirmOpen(false);
+          setPendingAdminId(null);
+        }}
+      />
     </div>
   );
 };

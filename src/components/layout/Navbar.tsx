@@ -37,8 +37,8 @@ const Navbar = () => {
       <div className="fixed top-0 w-full z-40 p-4">
         {/* The Glassy Island Navbar */}
         <nav className="mx-auto max-w-7xl bg-darkCard/90 backdrop-blur-xl border-2 border-darkBorder shadow-2xl rounded-2xl px-6 h-16 flex items-center justify-between transition-all">
-          {/* LEFT: Branding (flex-1 forces it to take up the left space evenly) */}
-          <div className="flex-1 flex justify-start items-center">
+          {/* LEFT: Branding */}
+          <div className="flex-[0.8] flex justify-start items-center">
             <Link
               to="/"
               className="text-2xl font-bold tracking-tight text-darkText hover:opacity-80 transition-opacity"
@@ -76,7 +76,7 @@ const Navbar = () => {
           </div>
 
           {/* RIGHT: Desktop Controls / Mobile Hamburger */}
-          <div className="flex-1 flex justify-end items-center space-x-4 md:space-x-6">
+          <div className="flex-[1.2] flex justify-end items-center space-x-4 md:space-x-6">
             {/* Desktop-only items */}
             <div className="hidden md:flex items-center space-x-4 md:space-x-6">
               <LiveClock />

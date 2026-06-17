@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { logout, updateUser } from '../../store/slices/authSlice';
 import userService from '../../services/userService';
+import ConfirmModal from '../layout/ConfirmModal';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -21,6 +22,9 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   // Eye icon states
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  // Custom confirmation dialog state
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -54,15 +58,13 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you absolutely sure? This action cannot be undone.')) {
-      try {
-        await userService.deleteProfile(token as string);
-        dispatch(logout()); 
-        onClose();
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to delete account');
-      }
+  const executeDelete = async () => {
+    try {
+      await userService.deleteProfile(token as string);
+      dispatch(logout()); 
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete account');
     }
   };
 
@@ -172,11 +174,24 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
           <button onClick={handleLogout} className="w-full border border-darkBorder hover:bg-darkBg text-slate-300 py-2 rounded-lg transition-colors">
             Sign Out
           </button>
-          <button onClick={handleDelete} className="w-full bg-red-900/20 hover:bg-red-900/40 text-red-400 py-2 rounded-lg transition-colors">
+          <button onClick={() => setIsDeleteConfirmOpen(true)} className="w-full bg-red-900/20 hover:bg-red-900/40 text-red-400 py-2 rounded-lg transition-colors">
             Delete Account
           </button>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={isDeleteConfirmOpen}
+        title="Delete Account"
+        message="Are you absolutely sure? This action cannot be undone and you will lose all reported incident entries and group memberships."
+        confirmText="Delete Account"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={async () => {
+          setIsDeleteConfirmOpen(false);
+          await executeDelete();
+        }}
+        onCancel={() => setIsDeleteConfirmOpen(false)}
+      />
     </div>
   );
 };

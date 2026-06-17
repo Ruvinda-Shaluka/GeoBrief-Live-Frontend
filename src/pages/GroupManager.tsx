@@ -42,6 +42,8 @@ const GroupManager = () => {
   const [groupSearchTerm, setGroupSearchTerm] = useState("");
   const [incidentSearchTerm, setIncidentSearchTerm] = useState("");
 
+  const [isMembersExpanded, setIsMembersExpanded] = useState(true);
+
   const fetchData = async () => {
     if (!token) return;
     try {
@@ -328,29 +330,46 @@ const GroupManager = () => {
 
                 {/* Members list & Group Incidents */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Members */}
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-bold text-darkText uppercase tracking-wider">
-                      Members ({selectedGroup.members.length})
-                    </h3>
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                      {selectedGroup.members.map((member) => (
-                        <div
-                          key={member._id}
-                          className="flex items-center space-x-2.5 p-2 rounded-xl bg-darkBg/40 border border-darkBorder"
-                        >
-                          <div className="h-6 w-6 rounded-full bg-brandPrimary/25 flex items-center justify-center text-[10px] font-bold text-brandPrimary">
-                            {member.name.charAt(0).toUpperCase()}
+                  {/* Members list (Collapsible/Retractable) */}
+                  <div className="space-y-3 self-start border border-darkBorder/40 p-4 rounded-2xl bg-darkBg/20">
+                    <button
+                      type="button"
+                      onClick={() => setIsMembersExpanded(!isMembersExpanded)}
+                      className="w-full flex items-center justify-between text-left text-xs font-bold text-darkText uppercase tracking-wider focus:outline-none cursor-pointer group/btn select-none"
+                    >
+                      <span>Members ({selectedGroup.members.length})</span>
+                      <svg
+                        className={`h-4 w-4 text-darkTextSecondary transition-transform duration-200 ${
+                          isMembersExpanded ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {isMembersExpanded && (
+                      <div className="space-y-2 max-h-60 overflow-y-auto pr-1 animate-fadeIn">
+                        {selectedGroup.members.map((member) => (
+                          <div
+                            key={member._id}
+                            className="flex items-center space-x-2.5 p-2 rounded-xl bg-darkBg/40 border border-darkBorder"
+                          >
+                            <div className="h-6 w-6 rounded-full bg-brandPrimary/25 flex items-center justify-center text-[10px] font-bold text-brandPrimary">
+                              {member.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="text-left leading-tight">
+                              <span className="text-xs font-semibold text-darkText block">
+                                {member.name}
+                              </span>
+                              <span className="text-[10px] text-darkTextSecondary">{member.email}</span>
+                            </div>
                           </div>
-                          <div className="text-left leading-tight">
-                            <span className="text-xs font-semibold text-darkText block">
-                              {member.name}
-                            </span>
-                            <span className="text-[10px] text-darkTextSecondary">{member.email}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Incidents Shared */}

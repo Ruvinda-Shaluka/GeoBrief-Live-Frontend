@@ -45,7 +45,7 @@ const Dashboard = () => {
         if (found) {
           setSelectedIncident(found);
           setSelectedCoordinates(null); // Clear manual pin to focus on actual incident marker
-          setActiveTab("panel"); // Open details panel
+          setActiveTab("map"); // Force mobile tab to stay on map view to show popup bubble
         }
       }
     }
@@ -153,17 +153,17 @@ const Dashboard = () => {
       {/* Header bar */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight text-left">
+          <h1 className="text-3xl font-extrabold text-darkText tracking-tight text-left">
             Interactive Map
           </h1>
-          <p className="text-slate-400 text-sm text-left">
+          <p className="text-darkTextSecondary text-sm text-left">
             Real-time visual reports of local incidents and hazards.
           </p>
         </div>
         <button
           onClick={fetchData}
           disabled={loading}
-          className={`p-2.5 bg-darkCard/60 border border-darkBorder/40 rounded-xl hover:bg-darkCard hover:text-brandPrimary text-slate-300 transition-all cursor-pointer ${loading ? "opacity-50" : ""}`}
+          className={`p-2.5 bg-darkCard border border-darkBorder rounded-xl hover:bg-brandPrimary/10 hover:text-brandPrimary text-darkTextSecondary transition-all cursor-pointer ${loading ? "opacity-50" : ""}`}
         >
           <svg className={`h-5 w-5 ${loading ? "animate-spin text-brandPrimary" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.283 8H18" />
@@ -172,19 +172,19 @@ const Dashboard = () => {
       </div>
 
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-2xl text-sm font-medium mb-4 text-left">
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-4 text-left">
           {error}
         </div>
       )}
 
       {/* Mobile Tab Toggles (Visible only on < lg screens) */}
-      <div className="flex lg:hidden mb-4 border border-darkBorder/40 p-1 rounded-xl bg-darkCard/20">
+      <div className="flex lg:hidden mb-4 border-2 border-darkBorder p-1 rounded-xl bg-darkCard">
         <button
           onClick={() => setActiveTab("map")}
           className={`flex-1 py-2 text-center text-xs font-semibold rounded-lg transition-all cursor-pointer ${
             activeTab === "map"
               ? "bg-brandPrimary text-white shadow-md"
-              : "text-slate-400 hover:text-white"
+              : "text-darkTextSecondary hover:text-darkText"
           }`}
         >
           Map View
@@ -194,7 +194,7 @@ const Dashboard = () => {
           className={`flex-1 py-2 text-center text-xs font-semibold rounded-lg transition-all cursor-pointer relative ${
             activeTab === "panel"
               ? "bg-brandPrimary text-white shadow-md"
-              : "text-slate-400 hover:text-white"
+              : "text-darkTextSecondary hover:text-darkText"
           }`}
         >
           Details / Report
@@ -213,6 +213,7 @@ const Dashboard = () => {
             onMapClick={handleMapClick}
             onMarkerClick={handleMarkerClick}
             selectedCoordinates={selectedCoordinates}
+            selectedIncident={selectedIncident}
           />
         </div>
 
@@ -224,14 +225,15 @@ const Dashboard = () => {
               groups={groups}
               onSubmit={handleCreateIncidentSubmit}
               onCancel={() => setSelectedCoordinates(null)}
+              onCoordinatesChange={setSelectedCoordinates}
             />
           ) : selectedIncident ? (
             <div className="space-y-4">
-              <div className="flex justify-between items-center bg-darkCard/80 border border-darkBorder/60 px-4 py-3 rounded-xl">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Report Details</span>
+              <div className="flex justify-between items-center bg-darkCard border-2 border-darkBorder px-4 py-3 rounded-xl">
+                <span className="text-xs font-bold text-darkTextSecondary uppercase tracking-wider">Report Details</span>
                 <button
                   onClick={() => setSelectedIncident(null)}
-                  className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="text-darkTextSecondary hover:text-darkText transition-colors cursor-pointer"
                 >
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -244,21 +246,21 @@ const Dashboard = () => {
               />
             </div>
           ) : (
-            <div className="bg-darkCard/40 border border-darkBorder/40 rounded-2xl p-6 h-full flex flex-col justify-center text-center space-y-6">
+            <div className="bg-darkCard border-2 border-darkBorder rounded-2xl p-6 h-full flex flex-col justify-center text-center space-y-6">
               <div className="bg-brandPrimary/10 h-16 w-16 rounded-2xl flex items-center justify-center text-brandPrimary mx-auto border border-brandPrimary/20">
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
               </div>
               <div className="space-y-2 max-w-xs mx-auto">
-                <h3 className="text-lg font-bold text-white">No Incident Selected</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
+                <h3 className="text-lg font-bold text-darkText">No Incident Selected</h3>
+                <p className="text-darkTextSecondary text-sm leading-relaxed">
                   Click on an existing map marker to view detailed descriptions, status updates, and upvote reports.
                 </p>
               </div>
-              <div className="border-t border-darkBorder/20 pt-6 space-y-4">
-                <p className="text-xs text-slate-400">
-                  Total Active Incidents: <span className="font-bold text-white">{incidents.length}</span>
+              <div className="border-t border-darkBorder/40 pt-6 space-y-4">
+                <p className="text-xs text-darkTextSecondary">
+                  Total Active Incidents: <span className="font-bold text-darkText">{incidents.length}</span>
                 </p>
                 <button
                   onClick={() => {

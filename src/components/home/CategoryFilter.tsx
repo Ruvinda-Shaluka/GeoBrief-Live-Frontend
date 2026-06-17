@@ -26,7 +26,7 @@ const CategoryFilter = ({ selectedCategory, onSelectCategory }: CategoryFilterPr
               className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold tracking-wide border transition-all duration-200 cursor-pointer ${
                 isActive
                   ? "bg-brandPrimary text-white border-brandPrimary shadow-lg shadow-brandPrimary/30"
-                  : "bg-darkCard/50 text-slate-300 border-darkBorder/40 hover:bg-darkCard/80 hover:text-white hover:border-darkBorder"
+                  : "bg-darkCard text-darkTextSecondary border-2 border-darkBorder hover:bg-brandPrimary/10 hover:text-darkText"
               }`}
             >
               {category.label}

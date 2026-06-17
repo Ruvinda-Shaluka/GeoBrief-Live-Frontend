@@ -88,13 +88,13 @@ const Home = () => {
       {/* Search Bar & Category Filter */}
       <div className="space-y-4 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight text-left">
+          <h2 className="text-2xl font-bold text-darkText tracking-tight text-left">
             Recent Incidents
           </h2>
           
           <div className="relative w-full md:w-80">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4 text-darkTextSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </span>
@@ -103,7 +103,7 @@ const Home = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search incidents..."
-              className="w-full bg-darkCard/50 border border-darkBorder/40 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-brandPrimary transition-colors"
+              className="w-full bg-darkCard border border-darkBorder rounded-xl pl-9 pr-4 py-2.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
             />
           </div>
         </div>
@@ -142,12 +142,12 @@ const Home = () => {
           </button>
         </div>
       ) : filteredIncidents.length === 0 ? (
-        <div className="text-center py-20 bg-darkCard/20 rounded-2xl border border-darkBorder/40 p-8 max-w-lg mx-auto">
-          <svg className="mx-auto h-12 w-12 text-slate-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-20 bg-darkCard border-2 border-darkBorder rounded-2xl p-8 max-w-lg mx-auto">
+          <svg className="mx-auto h-12 w-12 text-darkTextSecondary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="text-lg font-bold text-white mb-2">No incidents found</h3>
-          <p className="text-slate-400 text-sm mb-6">
+          <h3 className="text-lg font-bold text-darkText mb-2">No incidents found</h3>
+          <p className="text-darkTextSecondary text-sm mb-6">
             There are no public incidents reported under "{selectedCategory}" yet. Be the first to report an issue!
           </p>
           <button

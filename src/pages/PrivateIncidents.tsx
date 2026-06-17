@@ -60,10 +60,10 @@ const PrivateIncidents = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
       <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-3xl font-extrabold text-darkText tracking-tight">
             My Private Incidents
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-darkTextSecondary text-sm">
             Incidents reported privately. Only you can view or interact with these reports.
           </p>
         </div>
@@ -72,7 +72,7 @@ const PrivateIncidents = () => {
           {/* Search bar */}
           <div className="relative w-full sm:w-64">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4 text-darkTextSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </span>
@@ -81,7 +81,7 @@ const PrivateIncidents = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search private entries..."
-              className="w-full bg-darkCard/50 border border-darkBorder/40 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-brandPrimary transition-colors"
+              className="w-full bg-darkCard border border-darkBorder rounded-xl pl-9 pr-4 py-2.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
             />
           </div>
 
@@ -95,7 +95,7 @@ const PrivateIncidents = () => {
       </div>
 
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6">
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6">
           {error}
         </div>
       )}
@@ -105,24 +105,24 @@ const PrivateIncidents = () => {
           {[...Array(3)].map((_, i) => (
             <div key={i} className="bg-darkCard/25 border border-darkBorder/20 rounded-2xl p-6 h-48 animate-pulse space-y-4">
               <div className="flex justify-between items-center">
-                <div className="h-6 w-24 bg-slate-800 rounded-lg" />
-                <div className="h-4 w-16 bg-slate-800 rounded-lg" />
+                <div className="h-6 w-24 bg-slate-850 rounded-lg" />
+                <div className="h-4 w-16 bg-slate-850 rounded-lg" />
               </div>
-              <div className="h-6 w-3/4 bg-slate-800 rounded-lg" />
+              <div className="h-6 w-3/4 bg-slate-850 rounded-lg" />
               <div className="space-y-2">
-                <div className="h-4 w-full bg-slate-800 rounded-lg" />
-                <div className="h-4 w-5/6 bg-slate-800 rounded-lg" />
+                <div className="h-4 w-full bg-slate-850 rounded-lg" />
+                <div className="h-4 w-5/6 bg-slate-850 rounded-lg" />
               </div>
             </div>
           ))}
         </div>
       ) : incidents.length === 0 ? (
-        <div className="text-center py-20 bg-darkCard/20 rounded-2xl border border-darkBorder/40 p-8 max-w-lg mx-auto mt-6">
-          <svg className="mx-auto h-12 w-12 text-slate-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-20 bg-darkCard border-2 border-darkBorder rounded-2xl p-8 max-w-lg mx-auto mt-6">
+          <svg className="mx-auto h-12 w-12 text-darkTextSecondary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          <h3 className="text-lg font-bold text-white mb-2">No private incidents</h3>
-          <p className="text-slate-400 text-sm mb-6">
+          <h3 className="text-lg font-bold text-darkText mb-2">No private incidents</h3>
+          <p className="text-darkTextSecondary text-sm mb-6">
             You haven't reported any private incidents. Use the Map Dashboard to report a hazard and set its visibility to "private".
           </p>
           <button
@@ -133,8 +133,8 @@ const PrivateIncidents = () => {
           </button>
         </div>
       ) : filteredIncidents.length === 0 ? (
-        <div className="text-center py-16 bg-darkCard/20 rounded-2xl border border-darkBorder/40 p-8 max-w-md mx-auto mt-6">
-          <p className="text-slate-400 text-sm">
+        <div className="text-center py-16 bg-darkCard border-2 border-darkBorder rounded-2xl p-8 max-w-md mx-auto mt-6">
+          <p className="text-darkTextSecondary text-sm">
             No private entries found matching "{searchTerm}".
           </p>
         </div>

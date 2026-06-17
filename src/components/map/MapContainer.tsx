@@ -8,6 +8,7 @@ interface MapContainerProps {
   onMapClick: (lng: number, lat: number) => void;
   onMarkerClick: (incident: Incident) => void;
   selectedCoordinates: [number, number] | null;
+  selectedIncident: Incident | null;
 }
 
 const MapContainer = ({
@@ -15,11 +16,13 @@ const MapContainer = ({
   onMapClick,
   onMarkerClick,
   selectedCoordinates,
+  selectedIncident,
 }: MapContainerProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const clickMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const activePopupRef = useRef<maplibregl.Popup | null>(null);
 
   // Initialize Map
   useEffect(() => {
@@ -121,18 +124,63 @@ const MapContainer = ({
         .addTo(map);
 
       clickMarkerRef.current = marker;
-      map.easeTo({ center: selectedCoordinates, zoom: Math.max(map.getZoom(), 13) });
+
+      // Only center/ease camera if user is NOT typing coordinates in the text boxes
+      const activeEl = document.activeElement;
+      const isTypingCoords = activeEl && (activeEl.id === "lat" || activeEl.id === "lng");
+      if (!isTypingCoords) {
+        map.easeTo({ center: selectedCoordinates, zoom: Math.max(map.getZoom(), 13) });
+      }
     }
   }, [selectedCoordinates]);
 
+  // Handle Selected Incident Popups
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (activePopupRef.current) {
+      activePopupRef.current.remove();
+      activePopupRef.current = null;
+    }
+
+    if (selectedIncident && selectedIncident.location && selectedIncident.location.coordinates) {
+      const [lng, lat] = selectedIncident.location.coordinates;
+
+      // Popup Content layout inside Carto/MERN theme
+      const htmlContent = `
+        <div class="p-1.5 text-left">
+          <h4 class="font-bold text-xs leading-snug">${selectedIncident.title}</h4>
+          <p class="text-[10px] mt-1 line-clamp-2 leading-relaxed opacity-90">${selectedIncident.description}</p>
+          <div class="mt-2 flex items-center justify-between">
+            <span class="inline-block text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-brandPrimary/25 text-brandPrimary">${selectedIncident.type}</span>
+            <span class="text-[8px] opacity-70 font-semibold">${selectedIncident.visibility}</span>
+          </div>
+        </div>
+      `;
+
+      const popup = new maplibregl.Popup({
+        offset: 15,
+        closeButton: true,
+        closeOnClick: false,
+      })
+        .setLngLat([lng, lat])
+        .setHTML(htmlContent)
+        .addTo(map);
+
+      activePopupRef.current = popup;
+      map.easeTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 14) });
+    }
+  }, [selectedIncident]);
+
   return (
-    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-darkBorder/60 shadow-2xl">
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-darkBorder shadow-2xl">
       {/* Map Container Element */}
       <div ref={mapContainerRef} className="w-full h-full" style={{ minHeight: "550px" }} />
 
       {/* Overlay Help Banner */}
-      <div className="absolute bottom-4 left-4 bg-darkBg/90 backdrop-blur-md border border-darkBorder/60 px-4 py-2 rounded-xl text-xs text-slate-300 pointer-events-none shadow-lg max-w-xs leading-relaxed">
-        <span className="font-semibold text-brandPrimary">Protip:</span> Click anywhere on the map to pin and report a new incident.
+      <div className="absolute bottom-4 left-4 bg-darkCard border border-darkBorder px-4 py-2 rounded-xl text-xs text-darkTextSecondary pointer-events-none shadow-lg max-w-xs leading-relaxed">
+        <span className="font-bold text-brandPrimary">Protip:</span> Click anywhere on the map to pin and report a new incident.
       </div>
     </div>
   );

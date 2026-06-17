@@ -101,59 +101,59 @@ const IncidentCard = ({ incident, onUpvote }: IncidentCardProps) => {
   });
 
   return (
-    <div className="bg-darkCard/40 backdrop-blur-md border border-darkBorder/40 rounded-2xl p-6 shadow-lg hover:shadow-xl hover:border-brandPrimary/30 transition-all duration-300 flex flex-col justify-between text-left group">
+    <div className="bg-darkCard backdrop-blur-md border-2 border-darkBorder rounded-2xl p-6 shadow-lg hover:shadow-xl hover:border-brandPrimary transition-all duration-300 flex flex-col justify-between text-left group">
       <div>
         {/* Header: Category & Date */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-xl bg-slate-900/60 border border-darkBorder/20">
+            <div className="p-2 rounded-xl bg-darkBg/60 border border-darkBorder/30">
               {getCategoryIcon(incident.type)}
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-300 block">
+              <span className="text-xs font-semibold text-darkTextSecondary block">
                 {getCategoryLabel(incident.type)}
               </span>
               <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                 incident.visibility === 'public' 
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                   : incident.visibility === 'group'
-                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30'
+                  : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30'
               }`}>
                 {incident.visibility}
               </span>
             </div>
           </div>
-          <span className="text-[11px] text-slate-400 font-medium">
+          <span className="text-[11px] text-darkTextSecondary font-medium">
             {formattedDate}
           </span>
         </div>
-
+ 
         {/* Title & Description */}
-        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-brandPrimary transition-colors duration-200">
+        <h3 className="text-lg font-bold text-darkText mb-2 group-hover:text-brandPrimary transition-colors duration-200">
           {incident.title}
         </h3>
-        <p className="text-sm text-slate-300 line-clamp-3 mb-4 leading-relaxed">
+        <p className="text-sm text-darkTextSecondary line-clamp-3 mb-4 leading-relaxed">
           {incident.description}
         </p>
       </div>
-
+ 
       {/* Footer: Reporter & Upvote Button */}
-      <div className="border-t border-darkBorder/20 pt-4 flex items-center justify-between mt-auto">
+      <div className="border-t border-darkBorder/40 pt-4 flex items-center justify-between mt-auto">
         <div className="flex items-center space-x-2">
-          <div className="h-7 w-7 rounded-full bg-purple-900/40 border border-purple-500/20 flex items-center justify-center text-[11px] font-semibold text-purple-300">
+          <div className="h-7 w-7 rounded-full bg-brandPrimary/10 border border-brandPrimary/30 flex items-center justify-center text-[11px] font-semibold text-brandPrimary">
             {reporterName.charAt(0).toUpperCase()}
           </div>
-          <span className="text-xs text-slate-400">
-            By <span className="font-semibold text-slate-300">{reporterName}</span>
+          <span className="text-xs text-darkTextSecondary">
+            By <span className="font-semibold text-darkText">{reporterName}</span>
           </span>
         </div>
-
+ 
         <div className="flex items-center space-x-2">
           {incident.location && incident.location.coordinates && (
             <button
               onClick={handleViewOnMap}
-              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border border-darkBorder/40 text-[11px] font-semibold text-slate-300 hover:bg-slate-800/40 hover:text-brandPrimary hover:border-brandPrimary/40 transition-all cursor-pointer"
+              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg border border-darkBorder text-[11px] font-semibold text-darkTextSecondary hover:bg-brandPrimary/10 hover:text-brandPrimary hover:border-brandPrimary transition-all cursor-pointer"
               title="View on Interactive Map"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,14 +163,14 @@ const IncidentCard = ({ incident, onUpvote }: IncidentCardProps) => {
               <span>View Map</span>
             </button>
           )}
-
+ 
           {onUpvote ? (
             <button
               onClick={() => onUpvote(incident._id)}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 isUpvoted
                   ? "bg-brandPrimary/20 text-brandPrimary border-brandPrimary/50 shadow-md shadow-brandPrimary/10"
-                  : "bg-transparent text-slate-400 border-darkBorder/40 hover:bg-slate-800/40 hover:text-white hover:border-slate-500"
+                  : "bg-transparent text-darkTextSecondary border-darkBorder hover:bg-brandPrimary/10 hover:text-darkText"
               }`}
             >
               <svg
@@ -189,7 +189,7 @@ const IncidentCard = ({ incident, onUpvote }: IncidentCardProps) => {
               <span>{upvoteCount}</span>
             </button>
           ) : (
-            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-darkBorder/20 text-xs font-semibold text-slate-500 bg-darkCard/10 select-none">
+            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-darkBorder/40 text-xs font-semibold text-darkTextSecondary bg-darkCard/10 select-none">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
               </svg>

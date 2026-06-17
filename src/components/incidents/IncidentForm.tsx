@@ -17,9 +17,10 @@ interface IncidentFormProps {
     coordinates: [number, number];
   }) => void;
   onCancel: () => void;
+  onCoordinatesChange?: (coords: [number, number]) => void;
 }
 
-const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormProps) => {
+const IncidentForm = ({ coordinates, groups, onSubmit, onCancel, onCoordinatesChange }: IncidentFormProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("road");
@@ -51,15 +52,31 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
       },
       (err) => {
         alert(`Failed to retrieve current location: ${err.message}`);
-      }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
   // Sync coords if user clicks on map to change location
   useEffect(() => {
-    setLng(coordinates[0].toString());
-    setLat(coordinates[1].toString());
+    const currentLng = parseFloat(lng);
+    const currentLat = parseFloat(lat);
+    if (currentLng !== coordinates[0] || currentLat !== coordinates[1]) {
+      setLng(coordinates[0].toString());
+      setLat(coordinates[1].toString());
+    }
   }, [coordinates]);
+
+  // Sync manual input changes back to map dynamically
+  useEffect(() => {
+    const parsedLng = parseFloat(lng);
+    const parsedLat = parseFloat(lat);
+    if (!isNaN(parsedLng) && !isNaN(parsedLat)) {
+      if (parsedLng >= -180 && parsedLng <= 180 && parsedLat >= -90 && parsedLat <= 90) {
+        onCoordinatesChange?.([parsedLng, parsedLat]);
+      }
+    }
+  }, [lng, lat, onCoordinatesChange]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,12 +128,12 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
   };
 
   return (
-    <div className="bg-darkCard/80 backdrop-blur-xl border border-darkBorder/60 p-6 rounded-2xl shadow-2xl text-left space-y-6">
-      <div className="flex justify-between items-center pb-4 border-b border-darkBorder/20">
-        <h3 className="text-xl font-bold text-white">Report New Incident</h3>
+    <div className="bg-darkCard border-2 border-darkBorder p-6 rounded-2xl shadow-2xl text-left space-y-6">
+      <div className="flex justify-between items-center pb-4 border-b border-darkBorder/40">
+        <h3 className="text-xl font-bold text-darkText">Report New Incident</h3>
         <button
           onClick={onCancel}
-          className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+          className="text-darkTextSecondary hover:text-darkText transition-colors cursor-pointer"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -126,9 +143,9 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Coordinates Inputs */}
-        <div className="bg-slate-900/60 border border-darkBorder/20 p-4 rounded-xl text-xs space-y-3">
+        <div className="bg-darkBg/60 border border-darkBorder p-4 rounded-xl text-xs space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-slate-400 font-semibold block uppercase tracking-wider">Coordinates</span>
+            <span className="text-darkTextSecondary font-bold block uppercase tracking-wider">Coordinates</span>
             <button
               type="button"
               onClick={handleUseGPS}
@@ -139,25 +156,25 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1 text-left">
-              <label htmlFor="lat" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Latitude</label>
+              <label htmlFor="lat" className="text-[10px] font-bold text-darkTextSecondary uppercase tracking-wider block">Latitude</label>
               <input
                 id="lat"
                 type="number"
                 step="any"
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
-                className="w-full bg-slate-950/40 border border-darkBorder/40 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors font-mono"
+                className="w-full bg-darkCard border border-darkBorder rounded-lg px-3 py-1.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors font-mono"
               />
             </div>
             <div className="space-y-1 text-left">
-              <label htmlFor="lng" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Longitude</label>
+              <label htmlFor="lng" className="text-[10px] font-bold text-darkTextSecondary uppercase tracking-wider block">Longitude</label>
               <input
                 id="lng"
                 type="number"
                 step="any"
                 value={lng}
                 onChange={(e) => setLng(e.target.value)}
-                className="w-full bg-slate-950/40 border border-darkBorder/40 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors font-mono"
+                className="w-full bg-darkCard border border-darkBorder rounded-lg px-3 py-1.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors font-mono"
               />
             </div>
           </div>
@@ -165,14 +182,14 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
 
         {/* Error message */}
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs py-2 px-3 rounded-lg font-medium">
+          <div className="bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs py-2 px-3 rounded-lg font-medium">
             {error}
           </div>
         )}
 
         {/* Title */}
         <div className="space-y-1">
-          <label htmlFor="title" className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          <label htmlFor="title" className="text-xs font-bold text-darkTextSecondary uppercase tracking-wider">
             Title
           </label>
           <input
@@ -181,13 +198,13 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Severe Road Pothole, Power Outage"
-            className="w-full bg-slate-900/40 border border-darkBorder/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandPrimary transition-colors"
+            className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
           />
         </div>
 
         {/* Description */}
         <div className="space-y-1">
-          <label htmlFor="description" className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          <label htmlFor="description" className="text-xs font-bold text-darkTextSecondary uppercase tracking-wider">
             Description
           </label>
           <textarea
@@ -196,13 +213,13 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Provide detail on the incident..."
             rows={3}
-            className="w-full bg-slate-900/40 border border-darkBorder/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandPrimary transition-colors resize-none"
+            className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none focus:border-brandPrimary transition-colors resize-none"
           />
         </div>
 
         {/* Category Type */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+          <label className="text-xs font-bold text-darkTextSecondary uppercase tracking-wider block">
             Incident Category
           </label>
           
@@ -213,9 +230,9 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
                 type="checkbox"
                 checked={isCustomCategory}
                 onChange={(e) => setIsCustomCategory(e.target.checked)}
-                className="rounded border-darkBorder text-brandPrimary focus:ring-brandPrimary/20 h-4 w-4 bg-slate-900 cursor-pointer"
+                className="rounded border-darkBorder text-brandPrimary focus:ring-brandPrimary/20 h-4 w-4 bg-darkCard cursor-pointer"
               />
-              <label htmlFor="custom-cat-toggle" className="text-xs text-slate-300 font-semibold cursor-pointer select-none">
+              <label htmlFor="custom-cat-toggle" className="text-xs text-darkTextSecondary font-semibold cursor-pointer select-none">
                 Use custom category (Diary entry)
               </label>
             </div>
@@ -227,14 +244,14 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
               value={customCategory}
               onChange={(e) => setCustomCategory(e.target.value)}
               placeholder="e.g., Garden Diary, Workout Log, Private Note"
-              className="w-full bg-slate-900 border border-darkBorder/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandPrimary transition-colors"
+              className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
             />
           ) : (
             <select
               id="type"
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-slate-900 border border-darkBorder/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandPrimary transition-colors"
+              className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
             >
               <option value="road">Road & Traffic</option>
               <option value="power">Power Outage</option>
@@ -247,7 +264,7 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
 
         {/* Visibility */}
         <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">
+          <label className="text-xs font-bold text-darkTextSecondary uppercase tracking-wider block mb-1">
             Visibility Layer
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -262,7 +279,7 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
                 className={`py-2 rounded-xl text-xs font-semibold uppercase tracking-wider border transition-all cursor-pointer ${
                   visibility === layer
                     ? "bg-brandPrimary text-white border-brandPrimary shadow-lg shadow-brandPrimary/10"
-                    : "bg-slate-900/40 text-slate-400 border-darkBorder/40 hover:bg-slate-800 hover:text-white"
+                    : "bg-darkCard text-darkTextSecondary border-darkBorder hover:bg-brandPrimary/10 hover:text-darkText"
                 }`}
               >
                 {layer}
@@ -274,12 +291,12 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
         {/* Group Selector - only visible when visibility is group */}
         {visibility === "group" && (
           <div className="space-y-1.5 animate-fadeIn">
-            <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+            <label className="text-xs font-bold text-darkTextSecondary uppercase tracking-wider block">
               Share With Groups
             </label>
             {groups.length === 0 ? (
-              <div className="text-[11px] text-slate-400 bg-slate-950/40 p-3 rounded-xl border border-darkBorder/20">
-                You are not in any groups. Go to <span className="font-semibold text-brandPrimary">My Groups</span> to create or join one first.
+              <div className="text-[11px] text-darkTextSecondary bg-darkBg/60 p-3 rounded-xl border border-darkBorder">
+                You are not in any groups. Go to <span className="font-bold text-brandPrimary">My Groups</span> to create or join one first.
               </div>
             ) : (
               <div className="space-y-2">
@@ -288,10 +305,10 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
                   value={groupSearch}
                   onChange={(e) => setGroupSearch(e.target.value)}
                   placeholder="Search groups..."
-                  className="w-full bg-slate-950/40 border border-darkBorder/40 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors"
+                  className="w-full bg-darkCard border border-darkBorder rounded-xl px-3 py-1.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
                 />
 
-                <div className="max-h-28 overflow-y-auto border border-darkBorder/40 rounded-xl p-2 space-y-1 bg-slate-900/40">
+                <div className="max-h-28 overflow-y-auto border border-darkBorder rounded-xl p-2 space-y-1 bg-darkCard">
                   {groups
                     .filter((g) => g.name.toLowerCase().includes(groupSearch.toLowerCase()))
                     .map((group) => {
@@ -304,7 +321,7 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
                           className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                             isChecked 
                               ? "bg-brandPrimary/15 text-brandPrimary border border-brandPrimary/30" 
-                              : "bg-transparent text-slate-300 border border-transparent hover:bg-slate-800"
+                              : "bg-transparent text-darkTextSecondary border border-transparent hover:bg-brandPrimary/10 hover:text-darkText"
                           }`}
                         >
                           <span>{group.name}</span>
@@ -313,7 +330,7 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                           ) : (
-                            <div className="h-4 w-4 rounded border border-darkBorder/60" />
+                            <div className="h-4 w-4 rounded border border-darkBorder" />
                           )}
                         </button>
                       );
@@ -325,11 +342,11 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel }: IncidentFormP
         )}
 
         {/* Buttons */}
-        <div className="flex space-x-3 pt-4 border-t border-darkBorder/20">
+        <div className="flex space-x-3 pt-4 border-t border-darkBorder/40">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-darkBorder/60 text-slate-300 bg-transparent hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-darkBorder text-darkTextSecondary bg-transparent hover:bg-brandPrimary/10 hover:text-darkText transition-colors cursor-pointer"
           >
             Cancel
           </button>

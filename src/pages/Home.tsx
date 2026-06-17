@@ -16,6 +16,13 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchTerm]);
 
   const fetchPublicIncidents = async () => {
     try {
@@ -79,6 +86,12 @@ const Home = () => {
                           incident.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredIncidents.length / ITEMS_PER_PAGE);
+  const paginatedIncidents = filteredIncidents.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -158,15 +171,40 @@ const Home = () => {
           </button>
         </div>
       ) : (
-        /* Incident Feed Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredIncidents.map((incident) => (
-            <IncidentCard
-              key={incident._id}
-              incident={incident}
-              onUpvote={handleUpvote}
-            />
-          ))}
+        <div className="space-y-8">
+          {/* Incident Feed Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedIncidents.map((incident) => (
+              <IncidentCard
+                key={incident._id}
+                incident={incident}
+                onUpvote={handleUpvote}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center space-x-4 pt-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-darkCard border border-darkBorder hover:bg-slate-200 dark:hover:bg-slate-800 text-darkTextSecondary hover:text-darkText rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed select-none cursor-pointer"
+              >
+                Previous
+              </button>
+              <span className="text-xs text-darkTextSecondary font-bold">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-darkCard border border-darkBorder hover:bg-slate-200 dark:hover:bg-slate-800 text-darkTextSecondary hover:text-darkText rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed select-none cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

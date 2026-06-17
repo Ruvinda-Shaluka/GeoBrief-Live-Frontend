@@ -122,7 +122,7 @@ const Navbar = () => {
               ) : (
                 <Link
                   to="/login"
-                  className="bg-brandPrimary hover:bg-purple-500 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg"
+                  className="bg-brandPrimary hover:bg-purple-500 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg whitespace-nowrap"
                 >
                   Sign In
                 </Link>
@@ -236,7 +236,7 @@ const Navbar = () => {
                 <Link
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="bg-brandPrimary hover:bg-purple-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition-colors"
+                  className="bg-brandPrimary hover:bg-purple-500 text-white px-5 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap"
                 >
                   Sign In
                 </Link>

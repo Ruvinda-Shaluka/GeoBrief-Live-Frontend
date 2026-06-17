@@ -97,66 +97,66 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       <div className="bg-darkCard border border-darkBorder rounded-2xl w-full max-w-md p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors text-xl"
+          className="absolute top-4 right-4 text-darkTextSecondary hover:text-darkText transition-colors text-xl"
         >
           &times;
         </button>
         
-        <h2 className="text-2xl font-bold mb-6">User Profile</h2>
+        <h2 className="text-2xl font-bold text-darkText mb-6">User Profile</h2>
 
-        {error && <div className="mb-4 p-2 bg-red-900/20 text-red-400 rounded text-sm text-center">{error}</div>}
-        {success && <div className="mb-4 p-2 bg-green-900/20 text-green-400 rounded text-sm text-center">{success}</div>}
+        {error && <div className="mb-4 p-2 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl text-sm text-center font-medium">{error}</div>}
+        {success && <div className="mb-4 p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm text-center font-medium">{success}</div>}
 
         <form onSubmit={handleUpdate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-1">Email (Read Only)</label>
+            <label className="block text-sm font-medium text-darkTextSecondary mb-1">Email (Read Only)</label>
             <input 
               type="email" 
               value={user?.email || ''} 
               disabled 
-              className="w-full bg-darkBg/50 border border-darkBorder rounded-lg px-4 py-2 text-slate-500 cursor-not-allowed"
+              className="w-full bg-darkBg/50 border border-darkBorder rounded-lg px-4 py-2 text-darkTextSecondary cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-1">Display Name</label>
+            <label className="block text-sm font-medium text-darkTextSecondary mb-1">Display Name</label>
             <input 
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+              className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
             />
           </div>
 
           {/* Only show password fields if they are a local user (not Google) */}
           {user?.authProvider === 'local' && (
             <div className="pt-4 border-t border-darkBorder mt-4">
-              <h3 className="text-sm font-semibold text-white mb-3">Change Password</h3>
+              <h3 className="text-sm font-semibold text-darkText mb-3">Change Password</h3>
               
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">Current Password</label>
+                  <label className="block text-xs text-darkTextSecondary mb-1">Current Password</label>
                   <div className="relative">
                     <input 
                       type={showCurrentPassword ? "text" : "password"} 
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Required to set new password"
-                      className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-white text-sm focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                      className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-darkText text-sm focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
                     />
                     <EyeButton show={showCurrentPassword} setShow={setShowCurrentPassword} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">New Password</label>
+                  <label className="block text-xs text-darkTextSecondary mb-1">New Password</label>
                   <div className="relative">
                     <input 
                       type={showNewPassword ? "text" : "password"} 
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Must be at least 6 characters"
-                      className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-white text-sm focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                      className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-darkText text-sm focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
                     />
                     <EyeButton show={showNewPassword} setShow={setShowNewPassword} />
                   </div>
@@ -171,10 +171,10 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
         </form>
 
         <div className="mt-6 pt-6 border-t border-darkBorder space-y-3">
-          <button onClick={handleLogout} className="w-full border border-darkBorder hover:bg-darkBg text-slate-300 py-2 rounded-lg transition-colors">
+          <button onClick={handleLogout} className="w-full border border-darkBorder hover:bg-darkBg/50 text-darkText py-2 rounded-lg transition-colors cursor-pointer">
             Sign Out
           </button>
-          <button onClick={() => setIsDeleteConfirmOpen(true)} className="w-full bg-red-900/20 hover:bg-red-900/40 text-red-400 py-2 rounded-lg transition-colors">
+          <button onClick={() => setIsDeleteConfirmOpen(true)} className="w-full bg-rose-500/10 hover:bg-rose-500/25 text-rose-600 dark:text-rose-400 py-2 rounded-lg transition-colors cursor-pointer">
             Delete Account
           </button>
         </div>

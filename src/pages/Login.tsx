@@ -50,18 +50,18 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-darkCard border border-darkBorder rounded-2xl shadow-2xl p-8">
+      <div className="w-full max-w-md bg-darkCard border-2 border-darkBorder rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold tracking-tight mb-2">
+          <h1 className="text-3xl font-bold text-darkText tracking-tight mb-2">
             Welcome to GeoBrief<span className="text-brandPrimary">Live</span>
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-darkTextSecondary text-sm">
             {isLogin ? 'Sign in to report and track local incidents.' : 'Create an account to join the community.'}
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-900/20 border border-red-500/30 rounded text-red-400 text-sm text-center">
+          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-xl text-rose-600 dark:text-rose-400 text-sm text-center font-medium">
             {error}
           </div>
         )}
@@ -69,11 +69,11 @@ const Login = () => {
         <form onSubmit={handleLocalAuth} className="space-y-4">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-darkTextSecondary mb-1">Full Name</label>
               <input 
                 type="text" 
                 required
-                className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -81,31 +81,31 @@ const Login = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+            <label className="block text-sm font-medium text-darkTextSecondary mb-1">Email</label>
             <input 
               type="email" 
               required
-              className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+              className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+            <label className="block text-sm font-medium text-darkTextSecondary mb-1">Password</label>
             <div className="relative">
               <input 
                 type={showPassword ? "text" : "password"} 
                 required
                 minLength={6} 
-                className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-white focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               {/* Hold-to-view Eye Button */}
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none transition-colors cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-darkTextSecondary hover:text-darkText transition-colors cursor-pointer"
                 onMouseDown={() => setShowPassword(true)}
                 onMouseUp={() => setShowPassword(false)}
                 onMouseLeave={() => setShowPassword(false)} // Hides it if they drag mouse away before letting go
@@ -123,7 +123,7 @@ const Login = () => {
           
           <button 
             type="submit" 
-            className="w-full bg-brandPrimary hover:bg-purple-500 text-white font-semibold py-2.5 rounded-lg transition-colors mt-2"
+            className="w-full bg-brandPrimary hover:bg-purple-500 text-white font-semibold py-2.5 rounded-lg transition-colors mt-2 cursor-pointer"
           >
             {isLogin ? 'Sign In' : 'Sign Up'}
           </button>
@@ -135,16 +135,16 @@ const Login = () => {
               setIsLogin(!isLogin);
               setError(''); 
             }}
-            className="text-sm text-slate-400 hover:text-white transition-colors focus:outline-none"
+            className="text-sm text-darkTextSecondary hover:text-darkText transition-colors focus:outline-none cursor-pointer font-semibold"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>
         </div>
 
         <div className="mt-6 flex items-center">
-          <div className="grow border-t border-darkBorder"></div>
-          <span className="mx-4 text-sm text-slate-500">OR</span>
-          <div className="grow border-t border-darkBorder"></div>
+          <div className="grow border-t-2 border-darkBorder"></div>
+          <span className="mx-4 text-sm text-darkTextSecondary font-bold">OR</span>
+          <div className="grow border-t-2 border-darkBorder"></div>
         </div>
 
         <div className="mt-6 flex justify-center">

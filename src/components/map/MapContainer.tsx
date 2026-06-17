@@ -29,23 +29,37 @@ const MapContainer = ({
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
-  const handleSearchSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  // Debounced search suggestions
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
 
-    try {
-      setSearchLoading(true);
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(
-          searchQuery.trim()
-        )}`
-      );
-      const data = await res.json();
-      setSearchResults(data);
-    } catch (err) {
-      console.error("Geocoding failed", err);
-    } finally {
-      setSearchLoading(false);
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        setSearchLoading(true);
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(
+            searchQuery.trim()
+          )}`
+        );
+        const data = await res.json();
+        setSearchResults(data);
+      } catch (err) {
+        console.error("Geocoding suggestions failed", err);
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 500); // 500ms debounce to prevent API spam
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchResults.length > 0) {
+      handleResultSelect(searchResults[0]);
     }
   };
 
@@ -228,7 +242,7 @@ const MapContainer = ({
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
             ) : (
-              <svg className="h-4 w-4 text-darkTextSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4 text-brandPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             )}

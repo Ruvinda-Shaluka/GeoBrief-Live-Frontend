@@ -32,7 +32,11 @@ if (!isTyping) {
 
 ### 3. Custom Confirmation Modal
 * Built a custom `ConfirmModal` component to replace standard browser native dialogs.
-* Adapts styles dynamically between info warning (for transferring group privileges) and danger (for account deletions).
+* Adapts styles dynamically between info warning (for transferring group privileges) and danger (for account deletions, member exclusions, and group exits).
+* Integrated into the members accordion list:
+  - Admin users see a **Remove** button next to other group members to exclude them.
+  - Regular members see a **Leave** button next to their own name to leave the group.
+  - Both actions trigger a styled confirmation popup prior to execution.
 
 ### 4. Spacing & Theming Layouts
 * Integrated Light Theme with pitch black text contrast (`#000000`) and borders for cards.

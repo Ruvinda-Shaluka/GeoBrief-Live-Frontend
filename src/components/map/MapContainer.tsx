@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Incident } from "../incidents/IncidentCard";
@@ -23,6 +23,46 @@ const MapContainer = ({
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const clickMarkerRef = useRef<maplibregl.Marker | null>(null);
   const activePopupRef = useRef<maplibregl.Popup | null>(null);
+
+  // Geocoding Search States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    try {
+      setSearchLoading(true);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(
+          searchQuery.trim()
+        )}`
+      );
+      const data = await res.json();
+      setSearchResults(data);
+    } catch (err) {
+      console.error("Geocoding failed", err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const handleResultSelect = (result: any) => {
+    const lat = parseFloat(result.lat);
+    const lon = parseFloat(result.lon);
+    
+    if (mapRef.current && !isNaN(lat) && !isNaN(lon)) {
+      mapRef.current.flyTo({
+        center: [lon, lat],
+        zoom: 14,
+        essential: true
+      });
+      onMapClick(lon, lat);
+    }
+    setSearchResults([]);
+  };
 
   // Initialize Map
   useEffect(() => {
@@ -177,6 +217,61 @@ const MapContainer = ({
     <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-darkBorder shadow-2xl">
       {/* Map Container Element */}
       <div ref={mapContainerRef} className="w-full h-full" style={{ minHeight: "550px" }} />
+
+      {/* Location Search Bar Overlay */}
+      <div className="absolute top-4 left-4 z-10 w-72 sm:w-80">
+        <form onSubmit={handleSearchSubmit} className="relative flex items-center shadow-lg">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {searchLoading ? (
+              <svg className="h-4 w-4 animate-spin text-brandPrimary" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4 text-darkTextSecondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            )}
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search location (e.g. Colombo, London)..."
+            className="w-full bg-darkCard/95 backdrop-blur-md border border-darkBorder rounded-xl pl-9 pr-8 py-2.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSearchResults([]);
+              }}
+              className="absolute right-2 text-darkTextSecondary hover:text-darkText cursor-pointer transition-colors p-1"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </form>
+
+        {/* Search Results Dropdown */}
+        {searchResults.length > 0 && (
+          <div className="absolute top-11 left-0 w-full bg-darkCard/95 backdrop-blur-md border border-darkBorder rounded-xl shadow-xl overflow-hidden z-20 max-h-60 overflow-y-auto">
+            {searchResults.map((result, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleResultSelect(result)}
+                className="w-full text-left px-4 py-2.5 hover:bg-brandPrimary/10 border-b border-darkBorder/40 last:border-0 text-xs text-darkText font-semibold transition-colors truncate block"
+              >
+                {result.display_name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Overlay Help Banner */}
       <div className="absolute bottom-4 left-4 bg-darkCard border border-darkBorder px-4 py-2 rounded-xl text-xs text-darkTextSecondary pointer-events-none shadow-lg max-w-xs leading-relaxed">

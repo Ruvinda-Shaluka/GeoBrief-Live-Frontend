@@ -33,11 +33,25 @@ const transferGroupAdmin = async (groupId: string, newAdminId: string, token: st
   return response.data;
 };
 
+// Remove a member from the group (admin action)
+const removeMember = async (groupId: string, memberId: string, token: string) => {
+  const response = await axios.delete(API_URL + `${groupId}/members/${memberId}`, getAuthHeaders(token));
+  return response.data;
+};
+
+// Leave the group (member action)
+const leaveGroup = async (groupId: string, token: string) => {
+  const response = await axios.post(API_URL + `${groupId}/leave`, {}, getAuthHeaders(token));
+  return response.data;
+};
+
 const groupService = {
   createGroup,
   getUserGroups,
   addMemberToGroup,
   transferGroupAdmin,
+  removeMember,
+  leaveGroup,
 };
 
 export default groupService;

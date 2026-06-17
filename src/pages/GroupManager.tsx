@@ -48,6 +48,10 @@ const GroupManager = () => {
   // Custom confirmation dialog states
   const [isTransferConfirmOpen, setIsTransferConfirmOpen] = useState(false);
   const [pendingAdminId, setPendingAdminId] = useState<string | null>(null);
+  const [isRemoveConfirmOpen, setIsRemoveConfirmOpen] = useState(false);
+  const [pendingRemoveMemberId, setPendingRemoveMemberId] = useState<string | null>(null);
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
+  const [selectedMemberForActions, setSelectedMemberForActions] = useState<UserInfo | null>(null);
 
   const fetchData = async () => {
     if (!token) return;
@@ -149,6 +153,60 @@ const GroupManager = () => {
       setActionSuccess("Transferred admin privilege successfully!");
     } catch (err: any) {
       setActionError(err.response?.data?.message || "Failed to transfer admin privileges.");
+    }
+  };
+
+  const handleRemoveMember = (memberId: string) => {
+    setPendingRemoveMemberId(memberId);
+    setIsRemoveConfirmOpen(true);
+  };
+
+  const executeRemoveMember = async (memberId: string) => {
+    if (!token || !selectedGroup) return;
+
+    try {
+      setActionError(null);
+      setActionSuccess(null);
+      const updatedGroup = await groupService.removeMember(
+        selectedGroup._id,
+        memberId,
+        token
+      );
+
+      // Update groups list
+      setGroups((prev) =>
+        prev.map((g) => (g._id === selectedGroup._id ? updatedGroup : g))
+      );
+      setSelectedGroup(updatedGroup);
+      setActionSuccess("Member removed successfully.");
+    } catch (err: any) {
+      setActionError(err.response?.data?.message || "Failed to remove member.");
+    }
+  };
+
+  const handleLeaveGroup = () => {
+    setIsLeaveConfirmOpen(true);
+  };
+
+  const executeLeaveGroup = async () => {
+    if (!token || !selectedGroup) return;
+
+    try {
+      setActionError(null);
+      setActionSuccess(null);
+      await groupService.leaveGroup(selectedGroup._id, token);
+
+      // Remove group from user's groups list
+      const remainingGroups = groups.filter((g) => g._id !== selectedGroup._id);
+      setGroups(remainingGroups);
+      if (remainingGroups.length > 0) {
+        setSelectedGroup(remainingGroups[0]);
+      } else {
+        setSelectedGroup(null);
+      }
+      setActionSuccess("Successfully left the group.");
+    } catch (err: any) {
+      setActionError(err.response?.data?.message || "Failed to leave group.");
     }
   };
 
@@ -385,32 +443,38 @@ const GroupManager = () => {
                     
                     {isMembersExpanded && (
                       <div className="space-y-2 max-h-60 overflow-y-auto pr-1 animate-fadeIn">
-                        {selectedGroup.members.map((member) => (
-                          <div
-                            key={member._id}
-                            className="flex items-center space-x-2.5 p-2 rounded-xl bg-darkBg/40 border border-darkBorder"
-                          >
-                            <div className="h-6 w-6 rounded-full bg-brandPrimary/25 flex items-center justify-center text-[10px] font-bold text-brandPrimary">
-                              {member.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="text-left leading-tight">
-                              <span className="text-xs font-semibold text-darkText block">
-                                {member.name}
-                              </span>
-                              <span className="text-[10px] text-darkTextSecondary">{member.email}</span>
-                            </div>
-                            {isAdminOfSelectedGroup() && member._id !== user?._id && (
-                              <button
-                                type="button"
-                                onClick={() => handleMakeAdmin(member._id)}
-                                className="ml-auto px-2 py-1 bg-brandPrimary/10 border border-brandPrimary/35 hover:bg-brandPrimary hover:text-white rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer select-none"
-                                title="Transfer admin privileges to this member"
-                              >
-                                Make Admin
-                              </button>
-                            )}
-                          </div>
-                        ))}
+                        {selectedGroup.members.map((member) => {
+                          const adminId = typeof selectedGroup.admin === "object" ? selectedGroup.admin._id : selectedGroup.admin;
+                          const isMemberAdmin = member._id === adminId;
+                          
+                          return (
+                            <button
+                              key={member._id}
+                              type="button"
+                              onClick={() => setSelectedMemberForActions(member)}
+                              className="w-full flex items-center space-x-2.5 p-2.5 rounded-xl bg-darkBg/40 border border-darkBorder hover:bg-brandPrimary/10 hover:border-brandPrimary/40 transition-all cursor-pointer text-left focus:outline-none group/item"
+                            >
+                              <div className="h-7 w-7 rounded-full bg-brandPrimary/25 flex items-center justify-center text-[10px] font-bold text-brandPrimary group-hover/item:bg-brandPrimary group-hover/item:text-white transition-colors">
+                                {member.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="text-left leading-tight flex-1">
+                                <span className="text-xs font-semibold text-darkText block group-hover/item:text-brandPrimary transition-colors">
+                                  {member.name}
+                                </span>
+                                <span className="text-[10px] text-darkTextSecondary block">{member.email}</span>
+                              </div>
+                              {isMemberAdmin ? (
+                                <span className="bg-amber-500/15 border border-amber-500/35 text-amber-600 dark:text-amber-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                  Admin
+                                </span>
+                              ) : (
+                                <span className="bg-slate-500/15 border border-slate-500/35 text-slate-600 dark:text-slate-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                  Member
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -495,6 +559,174 @@ const GroupManager = () => {
           setPendingAdminId(null);
         }}
       />
+      <ConfirmModal
+        isOpen={isRemoveConfirmOpen}
+        title="Remove Member"
+        message="Are you sure you want to remove this member from the group?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={async () => {
+          if (pendingRemoveMemberId) {
+            setIsRemoveConfirmOpen(false);
+            await executeRemoveMember(pendingRemoveMemberId);
+          }
+        }}
+        onCancel={() => {
+          setIsRemoveConfirmOpen(false);
+          setPendingRemoveMemberId(null);
+        }}
+      />
+      <ConfirmModal
+        isOpen={isLeaveConfirmOpen}
+        title="Leave Group"
+        message="Are you sure you want to leave this group?"
+        confirmText="Leave Group"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={async () => {
+          setIsLeaveConfirmOpen(false);
+          await executeLeaveGroup();
+        }}
+        onCancel={() => {
+          setIsLeaveConfirmOpen(false);
+        }}
+      />
+
+      {/* Member Options Popup/Modal */}
+      {selectedMemberForActions && (
+        <div className="fixed inset-0 bg-black/65 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
+          <div className="bg-darkCard border-2 border-darkBorder rounded-2xl w-full max-w-md p-6 shadow-2xl relative text-left">
+            {/* Close button in top-right */}
+            <button
+              type="button"
+              onClick={() => setSelectedMemberForActions(null)}
+              className="absolute top-4 right-4 text-darkTextSecondary hover:text-darkText cursor-pointer transition-colors p-1"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h3 className="text-lg font-bold text-darkText flex items-center gap-2 mb-4">
+              <svg className="h-5 w-5 text-brandPrimary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Member Options
+            </h3>
+
+            {/* Member Card Profile representation inside modal */}
+            <div className="flex items-center space-x-4 p-4 rounded-xl bg-darkBg/50 border border-darkBorder mb-6">
+              <div className="h-12 w-12 rounded-full bg-brandPrimary/20 flex items-center justify-center text-lg font-bold text-brandPrimary">
+                {selectedMemberForActions.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="leading-tight flex-1">
+                <span className="text-sm font-bold text-darkText block">
+                  {selectedMemberForActions.name}
+                </span>
+                <span className="text-xs text-darkTextSecondary block mb-1">
+                  {selectedMemberForActions.email}
+                </span>
+                {/* Role representation inside modal */}
+                {(() => {
+                  const adminId = typeof selectedGroup?.admin === "object" ? selectedGroup.admin._id : selectedGroup?.admin;
+                  const isMemberAdmin = selectedMemberForActions._id === adminId;
+                  return isMemberAdmin ? (
+                    <span className="inline-block bg-amber-500/15 border border-amber-500/35 text-amber-600 dark:text-amber-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      Admin / Owner
+                    </span>
+                  ) : (
+                    <span className="inline-block bg-slate-500/15 border border-slate-500/35 text-slate-600 dark:text-slate-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      Group Member
+                    </span>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Buttons options */}
+            <div className="flex flex-col gap-2.5">
+              {(() => {
+                const adminId = typeof selectedGroup?.admin === "object" ? selectedGroup.admin._id : selectedGroup?.admin;
+                const isUserAdmin = user?._id === adminId;
+                const isMeSelected = selectedMemberForActions._id === user?._id;
+
+                return (
+                  <>
+                    {/* Admin Options */}
+                    {isUserAdmin && !isMeSelected && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const memberId = selectedMemberForActions._id;
+                            setSelectedMemberForActions(null);
+                            handleMakeAdmin(memberId);
+                          }}
+                          className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5 select-none"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                          Make Admin
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const memberId = selectedMemberForActions._id;
+                            setSelectedMemberForActions(null);
+                            handleRemoveMember(memberId);
+                          }}
+                          className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5 select-none"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 0v3M4 7h16" />
+                          </svg>
+                          Remove Member
+                        </button>
+                      </>
+                    )}
+
+                    {/* Non-Admin Me Option */}
+                    {!isUserAdmin && isMeSelected && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedMemberForActions(null);
+                          handleLeaveGroup();
+                        }}
+                        className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5 select-none"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Leave Group
+                      </button>
+                    )}
+
+                    {/* Info text for cases with no actions */}
+                    {((!isUserAdmin && !isMeSelected) || (isUserAdmin && isMeSelected)) && (
+                      <p className="text-[11px] text-darkTextSecondary bg-darkBg/30 border border-darkBorder p-2.5 rounded-xl text-center">
+                        {isMeSelected 
+                          ? "You are the Group Admin. You must transfer ownership to another member before leaving." 
+                          : "Only the group administrator can manage this member."}
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
+
+              <button
+                type="button"
+                onClick={() => setSelectedMemberForActions(null)}
+                className="w-full py-2.5 border border-darkBorder bg-darkBg/20 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl text-xs font-semibold text-darkTextSecondary hover:text-darkText transition-colors cursor-pointer select-none text-center"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

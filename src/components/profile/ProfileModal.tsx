@@ -72,7 +72,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   };
 
   // Reusable Eye Button Component
-  const EyeButton = ({ show, setShow }: { show: boolean, setShow: (val: boolean) => void }) => (
+  const EyeButton = ({ show: _show, setShow }: { show: boolean, setShow: (val: boolean) => void }) => (
     <button
       type="button"
       className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200 focus:outline-none transition-colors cursor-pointer"

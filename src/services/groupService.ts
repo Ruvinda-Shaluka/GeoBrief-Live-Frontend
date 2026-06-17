@@ -1,0 +1,36 @@
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_BASE_URL + '/groups/';
+
+// Helper to construct auth headers
+const getAuthHeaders = (token: string) => ({
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+
+// Create a group
+const createGroup = async (groupData: { name: string; description?: string }, token: string) => {
+  const response = await axios.post(API_URL, groupData, getAuthHeaders(token));
+  return response.data;
+};
+
+// Get all groups the user is a member/admin of
+const getUserGroups = async (token: string) => {
+  const response = await axios.get(API_URL, getAuthHeaders(token));
+  return response.data;
+};
+
+// Add a member to group by email
+const addMemberToGroup = async (groupId: string, email: string, token: string) => {
+  const response = await axios.post(API_URL + `${groupId}/members`, { email }, getAuthHeaders(token));
+  return response.data;
+};
+
+const groupService = {
+  createGroup,
+  getUserGroups,
+  addMemberToGroup,
+};
+
+export default groupService;

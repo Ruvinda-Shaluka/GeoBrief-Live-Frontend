@@ -5,9 +5,21 @@ export interface Incident {
   _id: string;
   title: string;
   description: string;
-  type: 'road' | 'power' | 'safety' | 'other';
-  coordinates: [number, number]; // [longitude, latitude] for Mapbox
-  status: 'active' | 'resolved';
+  type: string;
+  status: 'active' | 'resolved' | 'archived';
+  visibility: 'public' | 'private' | 'group';
+  sharedWithGroups?: string[];
+  upvotes: string[]; // array of user IDs
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  reportedBy: {
+    _id: string;
+    name: string;
+  } | string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 interface IncidentState {

@@ -37,6 +37,12 @@ const Navbar = () => {
               Public Feed
             </Link>
             <Link
+              to="/dashboard"
+              className={`${isActive("/dashboard") ? "text-brandPrimary border-b-2 border-brandPrimary" : "text-slate-300 hover:text-white"} px-3 py-5 text-sm font-medium transition-colors`}
+            >
+              Map Dashboard
+            </Link>
+            <Link
               to="/private"
               className={`${isActive("/private") ? "text-brandPrimary border-b-2 border-brandPrimary" : "text-slate-300 hover:text-white"} px-3 py-5 text-sm font-medium transition-colors`}
             >

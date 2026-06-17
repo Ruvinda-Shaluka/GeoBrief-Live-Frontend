@@ -1,0 +1,364 @@
+import { useEffect, useState } from "react";
+import { useAppSelector } from "../store/store";
+import groupService from "../services/groupService";
+import incidentService from "../services/incidentService";
+import IncidentCard from "../components/incidents/IncidentCard";
+import type { Incident } from "../components/incidents/IncidentCard";
+
+interface UserInfo {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+interface Group {
+  _id: string;
+  name: string;
+  description?: string;
+  admin: UserInfo | string;
+  members: UserInfo[];
+}
+
+const GroupManager = () => {
+  const { token, user } = useAppSelector((state) => state.auth);
+
+  // Lists state
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
+
+  // Forms state
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupDesc, setNewGroupDesc] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+
+  // Loading & error
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const [groupsData, incidentsData] = await Promise.all([
+        groupService.getUserGroups(token),
+        incidentService.getIncidents(token),
+      ]);
+      setGroups(groupsData);
+      setAllIncidents(incidentsData);
+      if (groupsData.length > 0) {
+        // Automatically select first group if none selected
+        setSelectedGroup(groupsData[0]);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to load groups.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [token]);
+
+  const handleCreateGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !newGroupName.trim()) return;
+
+    try {
+      setActionError(null);
+      setActionSuccess(null);
+      const newGroup = await groupService.createGroup(
+        {
+          name: newGroupName.trim(),
+          description: newGroupDesc.trim() || undefined,
+        },
+        token
+      );
+      setGroups((prev) => [...prev, newGroup]);
+      setSelectedGroup(newGroup);
+      setNewGroupName("");
+      setNewGroupDesc("");
+      setActionSuccess("Group created successfully!");
+    } catch (err: any) {
+      setActionError(err.response?.data?.message || "Failed to create group.");
+    }
+  };
+
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !selectedGroup || !inviteEmail.trim()) return;
+
+    try {
+      setActionError(null);
+      setActionSuccess(null);
+      const updatedGroup = await groupService.addMemberToGroup(
+        selectedGroup._id,
+        inviteEmail.trim(),
+        token
+      );
+      
+      // Update groups list
+      setGroups((prev) =>
+        prev.map((g) => (g._id === selectedGroup._id ? updatedGroup : g))
+      );
+      setSelectedGroup(updatedGroup);
+      setInviteEmail("");
+      setActionSuccess("Member added successfully!");
+    } catch (err: any) {
+      setActionError(err.response?.data?.message || "Failed to add member.");
+    }
+  };
+
+  // Upvote helper for group page
+  const handleUpvote = async (incidentId: string) => {
+    if (!token) return;
+    try {
+      const updatedIncident = await incidentService.toggleUpvote(incidentId, token);
+      setAllIncidents((prev) =>
+        prev.map((inc) => (inc._id === incidentId ? updatedIncident : inc))
+      );
+    } catch (err) {
+      console.error("Upvote failed", err);
+    }
+  };
+
+  // Get incidents specifically shared with the selected group
+  const groupIncidents = allIncidents.filter((incident) => {
+    if (!selectedGroup) return false;
+    return (
+      incident.visibility === "group" &&
+      incident.sharedWithGroups?.includes(selectedGroup._id)
+    );
+  });
+
+  const isAdminOfSelectedGroup = () => {
+    if (!selectedGroup || !user) return false;
+    const adminId = typeof selectedGroup.admin === "object" ? selectedGroup.admin._id : selectedGroup.admin;
+    return adminId === user._id;
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
+      <div className="mb-8">
+        <h1 className="text-3xl font-extrabold text-white tracking-tight">
+          Group Collaboration
+        </h1>
+        <p className="text-slate-400 text-sm">
+          Collaborate on incidents privately within customized groups.
+        </p>
+      </div>
+
+      {error && (
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+          <div className="h-[450px] bg-darkCard/20 border border-darkBorder/20 rounded-2xl" />
+          <div className="lg:col-span-2 h-[450px] bg-darkCard/20 border border-darkBorder/20 rounded-2xl" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* LEFT PANEL: Group Listing & Controls */}
+          <div className="space-y-6">
+            {/* Create Group Card */}
+            <div className="bg-darkCard/40 border border-darkBorder/40 rounded-2xl p-6 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-4">Create New Group</h3>
+              <form onSubmit={handleCreateGroup} className="space-y-4">
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    placeholder="Group Name"
+                    className="w-full bg-slate-900/40 border border-darkBorder/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    value={newGroupDesc}
+                    onChange={(e) => setNewGroupDesc(e.target.value)}
+                    placeholder="Short Description"
+                    className="w-full bg-slate-900/40 border border-darkBorder/40 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2.5 rounded-xl text-xs font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer"
+                >
+                  Create Group
+                </button>
+              </form>
+            </div>
+
+            {/* Groups List Selection */}
+            <div className="bg-darkCard/40 border border-darkBorder/40 rounded-2xl p-6 shadow-xl">
+              <h3 className="text-lg font-bold text-white mb-4">Your Groups</h3>
+              {groups.length === 0 ? (
+                <p className="text-xs text-slate-400 py-4 text-center">
+                  You are not in any groups yet.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {groups.map((group) => {
+                    const isSelected = selectedGroup?._id === group._id;
+                    return (
+                      <button
+                        key={group._id}
+                        onClick={() => {
+                          setSelectedGroup(group);
+                          setActionError(null);
+                          setActionSuccess(null);
+                        }}
+                        className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-brandPrimary/10 border-brandPrimary text-white"
+                            : "bg-slate-900/30 border-darkBorder/40 text-slate-300 hover:bg-slate-800"
+                        }`}
+                      >
+                        <span className="font-bold text-sm block">{group.name}</span>
+                        {group.description && (
+                          <span className="text-xs text-slate-400 line-clamp-1 mt-0.5">
+                            {group.description}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT PANEL: Group Info & Shared Incidents */}
+          <div className="lg:col-span-2 space-y-6">
+            {selectedGroup ? (
+              <div className="bg-darkCard/40 border border-darkBorder/40 rounded-2xl p-6 shadow-xl space-y-6">
+                {/* Group Details Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-darkBorder/20 gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">{selectedGroup.name}</h2>
+                    <p className="text-slate-400 text-sm mt-0.5">{selectedGroup.description || "No description provided."}</p>
+                  </div>
+                  {/* Status Indicator / Admin badge */}
+                  <span className="bg-brandPrimary/10 border border-brandPrimary/35 text-brandPrimary text-xs font-semibold px-3 py-1.5 rounded-full">
+                    {isAdminOfSelectedGroup() ? "Group Admin" : "Group Member"}
+                  </span>
+                </div>
+
+                {/* Notifications */}
+                {actionError && (
+                  <div className="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs py-2 px-3 rounded-xl font-medium">
+                    {actionError}
+                  </div>
+                )}
+                {actionSuccess && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs py-2 px-3 rounded-xl font-medium">
+                    {actionSuccess}
+                  </div>
+                )}
+
+                {/* Invite section (Only visible to Group Admin) */}
+                {isAdminOfSelectedGroup() && (
+                  <div className="bg-slate-900/35 border border-darkBorder/20 p-4 rounded-2xl space-y-3">
+                    <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      Add Group Member
+                    </h4>
+                    <form onSubmit={handleAddMember} className="flex gap-3">
+                      <input
+                        type="email"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        placeholder="User's email address"
+                        className="flex-1 bg-slate-950/40 border border-darkBorder/40 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-brandPrimary transition-colors"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer"
+                      >
+                        Add Member
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {/* Members list & Group Incidents */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Members */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      Members ({selectedGroup.members.length})
+                    </h3>
+                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                      {selectedGroup.members.map((member) => (
+                        <div
+                          key={member._id}
+                          className="flex items-center space-x-2.5 p-2 rounded-xl bg-slate-900/35 border border-darkBorder/15"
+                        >
+                          <div className="h-6 w-6 rounded-full bg-brandPrimary/25 flex items-center justify-center text-[10px] font-bold text-brandPrimary">
+                            {member.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="text-left leading-tight">
+                            <span className="text-xs font-semibold text-white block">
+                              {member.name}
+                            </span>
+                            <span className="text-[10px] text-slate-400">{member.email}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Incidents Shared */}
+                  <div className="md:col-span-2 space-y-3 text-left">
+                    <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                      Shared Group Incidents ({groupIncidents.length})
+                    </h3>
+                    {groupIncidents.length === 0 ? (
+                      <div className="text-center py-12 bg-slate-900/20 rounded-2xl border border-darkBorder/20 px-4">
+                        <p className="text-xs text-slate-400">
+                          No group incidents have been reported. Set visibility to "group" when submitting an incident from the Map Dashboard.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4 max-h-[350px] overflow-y-auto pr-1">
+                        {groupIncidents.map((incident) => (
+                          <IncidentCard
+                            key={incident._id}
+                            incident={incident}
+                            onUpvote={handleUpvote}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-darkCard/20 border border-darkBorder/40 rounded-2xl p-12 text-center h-full flex flex-col justify-center items-center">
+                <svg className="h-12 w-12 text-slate-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <h3 className="text-lg font-bold text-white mb-2">No Group Selected</h3>
+                <p className="text-slate-400 text-sm max-w-xs leading-relaxed">
+                  Select a group from the list or create a new group to coordinate and collaborate on incidents.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GroupManager;

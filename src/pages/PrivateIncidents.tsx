@@ -1,0 +1,121 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../store/store";
+import incidentService from "../services/incidentService";
+import IncidentCard from "../components/incidents/IncidentCard";
+import type { Incident } from "../components/incidents/IncidentCard";
+
+const PrivateIncidents = () => {
+  const navigate = useNavigate();
+  const { token } = useAppSelector((state) => state.auth);
+  
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPrivateIncidents = async () => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await incidentService.getIncidents(token);
+      
+      // Filter incidents where visibility is private
+      const privateOnly = data.filter((inc: Incident) => inc.visibility === "private");
+      setIncidents(privateOnly);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to load private incidents.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPrivateIncidents();
+  }, [token]);
+
+  const handleUpvote = async (incidentId: string) => {
+    if (!token) return;
+    try {
+      const updatedIncident = await incidentService.toggleUpvote(incidentId, token);
+      setIncidents((prev) =>
+        prev.map((inc) => (inc._id === incidentId ? updatedIncident : inc))
+      );
+    } catch (err) {
+      console.error("Upvote failed", err);
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-left">
+      <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+            My Private Incidents
+          </h1>
+          <p className="text-slate-400 text-sm">
+            Incidents reported privately. Only you can view or interact with these reports.
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="px-5 py-2.5 bg-brandPrimary hover:bg-purple-500 text-white rounded-xl text-xs font-semibold transition-colors shadow-lg cursor-pointer"
+        >
+          Report New Incident
+        </button>
+      </div>
+
+      {error && (
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6">
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-darkCard/25 border border-darkBorder/20 rounded-2xl p-6 h-48 animate-pulse space-y-4">
+              <div className="flex justify-between items-center">
+                <div className="h-6 w-24 bg-slate-800 rounded-lg" />
+                <div className="h-4 w-16 bg-slate-800 rounded-lg" />
+              </div>
+              <div className="h-6 w-3/4 bg-slate-800 rounded-lg" />
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-slate-800 rounded-lg" />
+                <div className="h-4 w-5/6 bg-slate-800 rounded-lg" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : incidents.length === 0 ? (
+        <div className="text-center py-20 bg-darkCard/20 rounded-2xl border border-darkBorder/40 p-8 max-w-lg mx-auto mt-6">
+          <svg className="mx-auto h-12 w-12 text-slate-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <h3 className="text-lg font-bold text-white mb-2">No private incidents</h3>
+          <p className="text-slate-400 text-sm mb-6">
+            You haven't reported any private incidents. Use the Map Dashboard to report a hazard and set its visibility to "private".
+          </p>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="px-6 py-2.5 bg-brandPrimary hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-colors shadow-lg cursor-pointer"
+          >
+            Go to Map Dashboard
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {incidents.map((incident) => (
+            <IncidentCard
+              key={incident._id}
+              incident={incident}
+              onUpvote={handleUpvote}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default PrivateIncidents;

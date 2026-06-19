@@ -7,11 +7,14 @@ This is the web client repository for the GeoBrief-Live platform. It is built us
 ## 🚀 Key Features
 
 * **Interactive Map Dashboard:** Real-time hazard location markers, camera viewport auto-focusing (lag-free when typing), and MapLibre popup info bubbles.
+* **Map Location Search with Autocomplete:** A custom search bar positioned over the map utilizing the Nominatim geocoding API to dynamically load as-you-type autocomplete suggestions (debounced at 500ms to preserve API usage). Selecting an entry flies the viewport smoothly to the target coordinates and drops a coordinate selection pin.
 * **Dual-Direction Coordinate Sync:** Syncs coordinates between the report form inputs and map click selections.
 * **Device GPS Syncing:** Fetches current coordinate positions from the browser's Geolocation API.
+* **Geo-Brief AI Summarizer:** Generates blistering-fast, AI-powered local alert briefings summarizing filtered page incidents (utilizing Groq llama3 on the backend), featuring pulsing skeleton loaders and premium glassmorphic cards.
+* **Actionable Safety Advice Widget:** Fetches tailored, bystander-oriented safety advice for individual incidents. Displays tips in a high-contrast theme-adaptive notification card (`text-yellow-950 bg-yellow-500/10` in Light Mode, `text-yellow-200 bg-yellow-900/20` in Dark Mode) complete with dismiss/close controls.
+* **Clickable Member Actions Popup:** Refactored inline list actions to a premium, centered Member Options modal. Clicking any member in a group accordion displays their profile and provides conditional controls based on credentials (Make Admin, Remove Member, Leave Group) with custom validation dialogs.
 * **Client-Side Feed Pagination:** Restricts visible public feed cards to **12 items per page** with custom Previous/Next navigation controls.
 * **Premium Theme system:** Beautiful Dark and Light Modes leveraging high-contrast pitch-black borders and text (`#000000`) for Light Mode.
-* **Group Collaboration Accordion:** Collapsible lists of group members with admin transfer buttons.
 * **Axios Auto-Logout Interceptor:** Automatically redirects to the `/login` page if local credentials expire (status 401).
 
 ---

@@ -27,7 +27,7 @@ const SafetyTipWidget = ({ title, category }: SafetyTipWidgetProps) => {
   };
 
   return (
-    <div className="w-full mt-3 text-left">
+    <div className="w-full mt-1 mb-4 text-left">
       {!tip && !isLoading && (
         <button
           type="button"
@@ -59,8 +59,18 @@ const SafetyTipWidget = ({ title, category }: SafetyTipWidgetProps) => {
       )}
 
       {tip && (
-        <div className="bg-yellow-500/10 dark:bg-yellow-900/20 border border-yellow-500/35 text-yellow-950 dark:text-yellow-200 text-xs p-3.5 rounded-xl mt-1 shadow-md leading-relaxed font-semibold animate-fadeIn">
+        <div className="relative bg-yellow-500/10 dark:bg-yellow-900/20 border border-yellow-500/35 text-yellow-950 dark:text-yellow-200 text-xs p-3.5 pr-8 rounded-xl mt-1 shadow-md leading-relaxed font-semibold animate-fadeIn">
           {tip}
+          <button
+            type="button"
+            onClick={() => setTip(null)}
+            className="absolute top-2.5 right-2.5 text-yellow-800 dark:text-yellow-400 hover:text-yellow-950 dark:hover:text-yellow-100 transition-colors p-0.5 cursor-pointer"
+            title="Dismiss safety notice"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       )}
     </div>

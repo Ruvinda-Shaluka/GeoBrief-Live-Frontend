@@ -6,6 +6,7 @@ import HeroSection from "../components/home/HeroSection";
 import CategoryFilter from "../components/home/CategoryFilter";
 import IncidentCard from "../components/incidents/IncidentCard";
 import type { Incident } from "../components/incidents/IncidentCard";
+import GeoBriefSummarizer from "../components/home/GeoBriefSummarizer";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -172,6 +173,9 @@ const Home = () => {
         </div>
       ) : (
         <div className="space-y-8">
+          {/* GeoBrief Area Summarizer */}
+          <GeoBriefSummarizer incidents={filteredIncidents} />
+
           {/* Incident Feed Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedIncidents.map((incident) => (

@@ -15,8 +15,25 @@ const getBriefSummary = async (incidents: string[], token: string | null): Promi
   return response.data.summary;
 };
 
+const getSafetyTip = async (
+  incidentData: { title: string; category: string },
+  token: string | null
+): Promise<string> => {
+  const config = token
+    ? {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    : undefined;
+
+  const response = await axios.post(API_URL + 'safety-tip', incidentData, config);
+  return response.data.tip;
+};
+
 const aiService = {
   getBriefSummary,
+  getSafetyTip,
 };
 
 export default aiService;

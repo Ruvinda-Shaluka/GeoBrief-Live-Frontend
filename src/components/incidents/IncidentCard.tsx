@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
+import SafetyTipWidget from "./SafetyTipWidget";
 
 export interface Incident {
   _id: string;
@@ -137,6 +138,8 @@ const IncidentCard = ({ incident, onUpvote }: IncidentCardProps) => {
           {incident.description}
         </p>
       </div>
+
+      <SafetyTipWidget title={incident.title} category={incident.type} />
  
       {/* Footer: Reporter & Upvote Button */}
       <div className="border-t border-darkBorder/40 pt-4 flex items-center justify-between mt-auto">

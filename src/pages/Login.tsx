@@ -61,19 +61,24 @@ const Login = () => {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/25 rounded-xl text-rose-600 dark:text-rose-400 text-sm text-center font-medium">
-            {error}
+          <div className="mb-6 p-4 bg-rose-500/10 border-2 border-rose-500/35 rounded-xl text-rose-600 dark:text-rose-400 text-sm text-left font-medium flex items-start gap-3 animate-fadeIn">
+            <svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleLocalAuth} className="space-y-4">
+        <form onSubmit={handleLocalAuth} className="space-y-5">
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-darkTextSecondary mb-1">Full Name</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-darkTextSecondary mb-1.5">Full Name</label>
               <input 
                 type="text" 
                 required
-                className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                className={`w-full bg-darkBg border rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none transition-colors ${
+                  error ? "border-rose-500/50 focus:border-rose-500 focus:ring-1 focus:ring-rose-500" : "border-darkBorder focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary"
+                }`}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -81,24 +86,28 @@ const Login = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-darkTextSecondary mb-1">Email</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-darkTextSecondary mb-1.5">Email Address</label>
             <input 
               type="email" 
               required
-              className="w-full bg-darkBg border border-darkBorder rounded-lg px-4 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+              className={`w-full bg-darkBg border rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none transition-colors ${
+                error ? "border-rose-500/50 focus:border-rose-500 focus:ring-1 focus:ring-rose-500" : "border-darkBorder focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary"
+              }`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-darkTextSecondary mb-1">Password</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-darkTextSecondary mb-1.5">Password</label>
             <div className="relative">
               <input 
                 type={showPassword ? "text" : "password"} 
                 required
                 minLength={6} 
-                className="w-full bg-darkBg border border-darkBorder rounded-lg pl-4 pr-10 py-2 text-darkText focus:outline-none focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary transition-colors"
+                className={`w-full bg-darkBg border rounded-xl pl-4 pr-10 py-2.5 text-sm text-darkText focus:outline-none transition-colors ${
+                  error ? "border-rose-500/50 focus:border-rose-500 focus:ring-1 focus:ring-rose-500" : "border-darkBorder focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary"
+                }`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -123,19 +132,19 @@ const Login = () => {
           
           <button 
             type="submit" 
-            className="w-full bg-brandPrimary hover:bg-purple-500 text-white font-semibold py-2.5 rounded-lg transition-colors mt-2 cursor-pointer"
+            className="w-full bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-brandPrimary/20 hover:shadow-brandPrimary/30 dark:shadow-none hover:scale-[1.01] active:scale-[0.99] mt-3 cursor-pointer select-none"
           >
             {isLogin ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center border-t border-darkBorder/40 pt-4">
           <button 
             onClick={() => {
               setIsLogin(!isLogin);
               setError(''); 
             }}
-            className="text-sm text-darkTextSecondary hover:text-darkText transition-colors focus:outline-none cursor-pointer font-semibold"
+            className="text-sm text-darkTextSecondary hover:text-darkText transition-colors focus:outline-none cursor-pointer font-bold"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
           </button>

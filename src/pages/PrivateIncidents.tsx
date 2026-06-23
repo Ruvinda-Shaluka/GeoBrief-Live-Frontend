@@ -87,16 +87,20 @@ const PrivateIncidents = () => {
 
           <button
             onClick={() => navigate("/dashboard")}
-            className="w-full sm:w-auto px-5 py-2.5 bg-brandPrimary hover:bg-purple-500 text-white rounded-xl text-xs font-semibold transition-colors shadow-lg cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 rounded-xl text-xs font-bold transition-all shadow-lg hover:scale-[1.01] active:scale-[0.99] cursor-pointer select-none"
           >
             Report New Incident
           </button>
         </div>
       </div>
+      <hr className="border-darkBorder/30 my-6" />
 
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6">
-          {error}
+        <div className="bg-rose-500/10 border-2 border-rose-500/35 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6 text-left flex items-start gap-3 animate-fadeIn">
+          <svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{error}</span>
         </div>
       )}
 
@@ -127,7 +131,7 @@ const PrivateIncidents = () => {
           </p>
           <button
             onClick={() => navigate("/dashboard")}
-            className="px-6 py-2.5 bg-brandPrimary hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-colors shadow-lg cursor-pointer"
+            className="px-8 py-3 bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 rounded-xl text-sm font-bold transition-all shadow-lg hover:scale-[1.01] active:scale-[0.99] cursor-pointer select-none"
           >
             Go to Map Dashboard
           </button>

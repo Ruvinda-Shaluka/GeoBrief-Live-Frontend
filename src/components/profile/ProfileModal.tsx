@@ -165,7 +165,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
             </div>
           )}
 
-          <button type="submit" className="w-full bg-brandPrimary hover:bg-purple-500 text-white font-semibold py-2.5 rounded-lg transition-colors mt-6">
+          <button type="submit" className="w-full bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 font-bold py-2.5 rounded-lg transition-colors mt-6 cursor-pointer select-none">
             Save Changes
           </button>
         </form>

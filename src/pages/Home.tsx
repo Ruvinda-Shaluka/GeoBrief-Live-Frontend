@@ -95,16 +95,21 @@ const Home = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
       {/* Hero Section Banner */}
       <HeroSection />
 
       {/* Search Bar & Category Filter */}
-      <div className="space-y-4 mb-8">
+      <div className="border-t border-darkBorder/30 pt-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-2xl font-bold text-darkText tracking-tight text-left">
-            Recent Incidents
-          </h2>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-darkText tracking-tight text-left">
+              Recent Incidents
+            </h2>
+            <p className="text-xs text-darkTextSecondary text-left">
+              Filter by categories or search for specific issues below.
+            </p>
+          </div>
           
           <div className="relative w-full md:w-80">
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -117,7 +122,7 @@ const Home = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search incidents..."
-              className="w-full bg-darkCard border border-darkBorder rounded-xl pl-9 pr-4 py-2.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
+              className="w-full bg-darkCard border border-darkBorder rounded-xl pl-9 pr-4 py-2.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors focus:ring-1 focus:ring-brandPrimary"
             />
           </div>
         </div>
@@ -127,6 +132,8 @@ const Home = () => {
           onSelectCategory={setSelectedCategory}
         />
       </div>
+
+      <hr className="border-darkBorder/30" />
 
       {/* Loading & Error States */}
       {loading ? (
@@ -146,27 +153,39 @@ const Home = () => {
           ))}
         </div>
       ) : error ? (
-        <div className="text-center py-16 bg-darkCard/20 rounded-2xl border border-red-500/20 p-8">
-          <p className="text-red-400 font-medium mb-4">{error}</p>
+        <div className="text-center py-16 bg-rose-500/5 rounded-2xl border border-rose-500/20 p-8 max-w-xl mx-auto space-y-6">
+          <div className="bg-rose-500/10 h-16 w-16 rounded-2xl flex items-center justify-center text-rose-500 mx-auto border border-rose-500/25">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-bold text-darkText">Something went wrong</h3>
+            <p className="text-darkTextSecondary text-sm max-w-sm mx-auto">{error}</p>
+          </div>
           <button
             onClick={fetchPublicIncidents}
-            className="px-6 py-2.5 bg-brandPrimary hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+            className="px-6 py-3 bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 text-sm font-bold rounded-xl transition-all shadow-md cursor-pointer select-none"
           >
             Try Again
           </button>
         </div>
       ) : filteredIncidents.length === 0 ? (
-        <div className="text-center py-20 bg-darkCard border-2 border-darkBorder rounded-2xl p-8 max-w-lg mx-auto">
-          <svg className="mx-auto h-12 w-12 text-darkTextSecondary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 className="text-lg font-bold text-darkText mb-2">No incidents found</h3>
-          <p className="text-darkTextSecondary text-sm mb-6">
-            There are no public incidents reported under "{selectedCategory}" yet. Be the first to report an issue!
-          </p>
+        <div className="text-center py-20 bg-darkCard border border-darkBorder rounded-2xl p-8 max-w-lg mx-auto space-y-6">
+          <div className="bg-brandPrimary/10 h-16 w-16 rounded-2xl flex items-center justify-center text-brandPrimary mx-auto border border-brandPrimary/20">
+            <svg className="mx-auto h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-bold text-darkText">No incidents found</h3>
+            <p className="text-darkTextSecondary text-sm max-w-md mx-auto">
+              There are no public incidents reported under "{selectedCategory}" yet. Be the first to report an issue!
+            </p>
+          </div>
           <button
             onClick={() => navigate(token ? "/dashboard" : "/login")}
-            className="px-6 py-2.5 bg-brandPrimary hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-colors shadow-lg cursor-pointer"
+            className="px-8 py-3 bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 rounded-xl text-sm font-bold transition-all shadow-lg hover:scale-[1.01] active:scale-[0.99] cursor-pointer select-none"
           >
             Report an Incident
           </button>

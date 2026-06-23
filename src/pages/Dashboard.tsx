@@ -149,9 +149,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col h-[calc(100vh-100px)]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col h-[calc(100vh-100px)] space-y-6">
       {/* Header bar */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center pb-4 border-b border-darkBorder/30">
         <div>
           <h1 className="text-3xl font-extrabold text-darkText tracking-tight text-left">
             Interactive Map
@@ -172,18 +172,21 @@ const Dashboard = () => {
       </div>
 
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-4 text-left">
-          {error}
+        <div className="bg-rose-500/10 border-2 border-rose-500/35 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium text-left flex items-start gap-3 animate-fadeIn">
+          <svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{error}</span>
         </div>
       )}
 
       {/* Mobile Tab Toggles (Visible only on < lg screens) */}
-      <div className="flex lg:hidden mb-4 border-2 border-darkBorder p-1 rounded-xl bg-darkCard">
+      <div className="flex lg:hidden border-2 border-darkBorder p-1 rounded-xl bg-darkCard">
         <button
           onClick={() => setActiveTab("map")}
-          className={`flex-1 py-2 text-center text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer ${
             activeTab === "map"
-              ? "bg-brandPrimary text-white shadow-md"
+              ? "bg-brandPrimary text-white dark:text-slate-950 shadow-md"
               : "text-darkTextSecondary hover:text-darkText"
           }`}
         >
@@ -191,9 +194,9 @@ const Dashboard = () => {
         </button>
         <button
           onClick={() => setActiveTab("panel")}
-          className={`flex-1 py-2 text-center text-xs font-semibold rounded-lg transition-all cursor-pointer relative ${
+          className={`flex-1 py-2 text-center text-xs font-bold rounded-lg transition-all cursor-pointer relative ${
             activeTab === "panel"
-              ? "bg-brandPrimary text-white shadow-md"
+              ? "bg-brandPrimary text-white dark:text-slate-950 shadow-md"
               : "text-darkTextSecondary hover:text-darkText"
           }`}
         >
@@ -268,7 +271,7 @@ const Dashboard = () => {
                     setSelectedCoordinates([79.8612, 6.9271]); // Default Colombo coordinates
                     setActiveTab("panel");
                   }}
-                  className="w-full py-2.5 rounded-xl text-xs font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-all shadow-lg cursor-pointer"
+                  className="w-full py-3 rounded-xl text-xs font-bold bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 transition-all shadow-lg cursor-pointer"
                 >
                   Report by entering Coordinates
                 </button>

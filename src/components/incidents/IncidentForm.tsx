@@ -182,8 +182,11 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel, onCoordinatesCh
 
         {/* Error message */}
         {error && (
-          <div className="bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs py-2 px-3 rounded-lg font-medium">
-            {error}
+          <div className="bg-rose-500/10 border-2 border-rose-500/35 text-rose-600 dark:text-rose-400 text-xs py-3 px-4 rounded-xl font-medium flex items-start gap-2.5 animate-fadeIn">
+            <svg className="h-4.5 w-4.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{error}</span>
           </div>
         )}
 
@@ -198,7 +201,11 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel, onCoordinatesCh
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Severe Road Pothole, Power Outage"
-            className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
+            className={`w-full bg-darkCard border rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none transition-colors ${
+              error && !title.trim() 
+                ? "border-rose-500/65 focus:border-rose-500 focus:ring-1 focus:ring-rose-500" 
+                : "border-darkBorder focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary"
+            }`}
           />
         </div>
 
@@ -213,7 +220,11 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel, onCoordinatesCh
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Provide detail on the incident..."
             rows={3}
-            className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none focus:border-brandPrimary transition-colors resize-none"
+            className={`w-full bg-darkCard border rounded-xl px-4 py-2.5 text-sm text-darkText focus:outline-none transition-colors resize-none ${
+              error && !description.trim() 
+                ? "border-rose-500/65 focus:border-rose-500 focus:ring-1 focus:ring-rose-500" 
+                : "border-darkBorder focus:border-brandPrimary focus:ring-1 focus:ring-brandPrimary"
+            }`}
           />
         </div>
 
@@ -346,13 +357,13 @@ const IncidentForm = ({ coordinates, groups, onSubmit, onCancel, onCoordinatesCh
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-darkBorder text-darkTextSecondary bg-transparent hover:bg-brandPrimary/10 hover:text-darkText transition-colors cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold border border-darkBorder text-darkTextSecondary bg-transparent hover:bg-brandPrimary/10 hover:text-darkText transition-colors cursor-pointer select-none"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 transition-colors shadow-lg cursor-pointer select-none"
           >
             Create Report
           </button>

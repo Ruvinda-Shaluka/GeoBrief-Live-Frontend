@@ -261,10 +261,14 @@ const GroupManager = () => {
           Collaborate on incidents privately within customized groups.
         </p>
       </div>
+      <hr className="border-darkBorder/30 my-6" />
 
       {error && (
-        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6">
-          {error}
+        <div className="bg-rose-500/10 border-2 border-rose-500/35 text-rose-600 dark:text-rose-400 p-4 rounded-2xl text-sm font-medium mb-6 text-left flex items-start gap-3 animate-fadeIn">
+          <svg className="h-5 w-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{error}</span>
         </div>
       )}
 
@@ -300,9 +304,9 @@ const GroupManager = () => {
                     className="w-full bg-darkCard border border-darkBorder rounded-xl px-4 py-2.5 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
                   />
                 </div>
-                <button
+                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl text-xs font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer"
+                  className="w-full py-3 rounded-xl text-xs font-bold bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 transition-colors shadow-lg cursor-pointer select-none"
                 >
                   Create Group
                 </button>
@@ -383,14 +387,20 @@ const GroupManager = () => {
                 </div>
 
                 {/* Notifications */}
-                {actionError && (
-                  <div className="bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs py-2 px-3 rounded-xl font-medium">
-                    {actionError}
+                 {actionError && (
+                  <div className="bg-rose-500/10 border-2 border-rose-500/35 text-rose-600 dark:text-rose-400 text-xs py-3 px-4 rounded-xl font-medium flex items-start gap-2 animate-fadeIn">
+                    <svg className="h-4.5 w-4.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>{actionError}</span>
                   </div>
                 )}
                 {actionSuccess && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs py-2 px-3 rounded-xl font-medium">
-                    {actionSuccess}
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs py-2.5 px-4 rounded-xl font-medium flex items-center gap-2 animate-fadeIn">
+                    <svg className="h-4.5 w-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{actionSuccess}</span>
                   </div>
                 )}
 
@@ -409,15 +419,17 @@ const GroupManager = () => {
                         className="flex-1 bg-darkCard border border-darkBorder rounded-xl px-4 py-2 text-xs text-darkText focus:outline-none focus:border-brandPrimary transition-colors"
                         required
                       />
-                      <button
+                       <button
                         type="submit"
-                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer"
+                        className="px-5 py-2.5 rounded-xl text-xs font-bold bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 transition-colors shadow-lg cursor-pointer select-none"
                       >
                         Add Member
                       </button>
                     </form>
                   </div>
                 )}
+
+                <hr className="border-darkBorder/40" />
 
                 {/* Members list & Group Incidents */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -663,7 +675,7 @@ const GroupManager = () => {
                             setSelectedMemberForActions(null);
                             handleMakeAdmin(memberId);
                           }}
-                          className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-brandPrimary text-white hover:bg-purple-500 transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5 select-none"
+                           className="w-full py-3 px-4 rounded-xl text-xs font-bold bg-brandPrimary hover:bg-teal-800 dark:hover:bg-teal-400 text-white dark:text-slate-950 transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5 select-none"
                         >
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
